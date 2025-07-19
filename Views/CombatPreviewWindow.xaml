@@ -1,0 +1,346 @@
+<Window x:Class="WorldWarX.Views.CombatPreviewWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Combat Preview" 
+        Height="320" 
+        Width="500"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Background="#1A1A2E"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        BorderThickness="1"
+        BorderBrush="#F73859">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0F0F1A" BorderBrush="#F73859" BorderThickness="0,0,0,1">
+            <TextBlock Text="COMBAT PREVIEW" 
+                     FontSize="24" 
+                     FontWeight="Bold" 
+                     Foreground="#F73859" 
+                     HorizontalAlignment="Center"
+                     Margin="10"/>
+        </Border>
+
+        <!-- Combat Preview Content -->
+        <Grid Grid.Row="1" Margin="15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Attacker Info -->
+            <Border Grid.Column="0" Background="#2D2D3A" CornerRadius="5" Padding="10">
+                <StackPanel>
+                    <TextBlock Text="ATTACKER" 
+                             FontSize="16" 
+                             FontWeight="Bold" 
+                             Foreground="#61DAFB" 
+                             HorizontalAlignment="Center"
+                             Margin="0,0,0,5"/>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5">
+                        <Image x:Name="AttackerImage" 
+                               Width="48" 
+                               Height="48" 
+                               Margin="0,0,10,0"/>
+                        <TextBlock x:Name="AttackerNameText" 
+                                 Text="Tank" 
+                                 FontSize="18" 
+                                 FontWeight="Bold" 
+                                 Foreground="White" 
+                                 VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- Current Health -->
+                    <StackPanel Margin="0,10,0,5">
+                        <TextBlock Text="Current Health" 
+                                 FontSize="14" 
+                                 Foreground="#61DAFB" 
+                                 HorizontalAlignment="Center"/>
+                        <Grid Height="20" Margin="0,3,0,0">
+                            <Rectangle Fill="#444" RadiusX="2" RadiusY="2"/>
+                            <Rectangle x:Name="AttackerHealthBar" 
+                                     Fill="#3C3" 
+                                     HorizontalAlignment="Left" 
+                                     Width="100" 
+                                     RadiusX="2" 
+                                     RadiusY="2"/>
+                            <TextBlock x:Name="AttackerHealthText" 
+                                     Text="100/100" 
+                                     HorizontalAlignment="Center" 
+                                     VerticalAlignment="Center" 
+                                     Foreground="White" 
+                                     FontWeight="Bold"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Projected Health -->
+                    <StackPanel Margin="0,5,0,5">
+                        <TextBlock Text="After Combat" 
+                                 FontSize="14" 
+                                 Foreground="#61DAFB" 
+                                 HorizontalAlignment="Center"/>
+                        <Grid Height="20" Margin="0,3,0,0">
+                            <Rectangle Fill="#444" RadiusX="2" RadiusY="2"/>
+                            <Rectangle x:Name="AttackerProjectedHealthBar" 
+                                     Fill="#3C3" 
+                                     HorizontalAlignment="Left" 
+                                     Width="100" 
+                                     RadiusX="2" 
+                                     RadiusY="2"/>
+                            <Rectangle x:Name="AttackerHealthLostBar" 
+                                     Fill="#F73859" 
+                                     HorizontalAlignment="Left" 
+                                     Width="0" 
+                                     RadiusX="2" 
+                                     RadiusY="2"/>
+                            <TextBlock x:Name="AttackerProjectedHealthText" 
+                                     Text="85/100" 
+                                     HorizontalAlignment="Center" 
+                                     VerticalAlignment="Center" 
+                                     Foreground="White" 
+                                     FontWeight="Bold"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Attack Stats -->
+                    <StackPanel Orientation="Horizontal" Margin="0,5" HorizontalAlignment="Center">
+                        <TextBlock Text="Attack: " 
+                                 FontSize="14" 
+                                 Foreground="#61DAFB"/>
+                        <TextBlock x:Name="AttackerAttackText" 
+                                 Text="25" 
+                                 FontSize="14" 
+                                 FontWeight="Bold" 
+                                 Foreground="White"/>
+                    </StackPanel>
+
+                    <!-- Attack Effectiveness -->
+                    <Border Background="#0F0F1A" Padding="5" CornerRadius="3" Margin="0,5,0,0">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="Effectiveness: " 
+                                     FontSize="14" 
+                                     Foreground="#F73859"/>
+                            <TextBlock x:Name="AttackerEffectivenessText" 
+                                     Text="x1.5" 
+                                     FontSize="14" 
+                                     FontWeight="Bold" 
+                                     Foreground="White"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Terrain Defense -->
+                    <StackPanel Orientation="Horizontal" Margin="0,5" HorizontalAlignment="Center">
+                        <TextBlock Text="Terrain Defense: " 
+                                 FontSize="12" 
+                                 Foreground="#61DAFB"/>
+                        <TextBlock x:Name="AttackerTerrainDefenseText" 
+                                 Text="20%" 
+                                 FontSize="12" 
+                                 FontWeight="Bold" 
+                                 Foreground="White"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- VS -->
+            <TextBlock Grid.Column="1" 
+                     Text="VS" 
+                     FontSize="28" 
+                     FontWeight="ExtraBold" 
+                     Foreground="#F73859" 
+                     VerticalAlignment="Center" 
+                     HorizontalAlignment="Center"
+                     Margin="15,0"/>
+
+            <!-- Defender Info -->
+            <Border Grid.Column="2" Background="#2D2D3A" CornerRadius="5" Padding="10">
+                <StackPanel>
+                    <TextBlock Text="DEFENDER" 
+                             FontSize="16" 
+                             FontWeight="Bold" 
+                             Foreground="#61DAFB" 
+                             HorizontalAlignment="Center"
+                             Margin="0,0,0,5"/>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5">
+                        <Image x:Name="DefenderImage" 
+                               Width="48" 
+                               Height="48" 
+                               Margin="0,0,10,0"/>
+                        <TextBlock x:Name="DefenderNameText" 
+                                 Text="Infantry" 
+                                 FontSize="18" 
+                                 FontWeight="Bold" 
+                                 Foreground="White" 
+                                 VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- Current Health -->
+                    <StackPanel Margin="0,10,0,5">
+                        <TextBlock Text="Current Health" 
+                                 FontSize="14" 
+                                 Foreground="#61DAFB" 
+                                 HorizontalAlignment="Center"/>
+                        <Grid Height="20" Margin="0,3,0,0">
+                            <Rectangle Fill="#444" RadiusX="2" RadiusY="2"/>
+                            <Rectangle x:Name="DefenderHealthBar" 
+                                     Fill="#3C3" 
+                                     HorizontalAlignment="Left" 
+                                     Width="100" 
+                                     RadiusX="2" 
+                                     RadiusY="2"/>
+                            <TextBlock x:Name="DefenderHealthText" 
+                                     Text="100/100" 
+                                     HorizontalAlignment="Center" 
+                                     VerticalAlignment="Center" 
+                                     Foreground="White" 
+                                     FontWeight="Bold"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Projected Health -->
+                    <StackPanel Margin="0,5,0,5">
+                        <TextBlock Text="After Combat" 
+                                 FontSize="14" 
+                                 Foreground="#61DAFB" 
+                                 HorizontalAlignment="Center"/>
+                        <Grid Height="20" Margin="0,3,0,0">
+                            <Rectangle Fill="#444" RadiusX="2" RadiusY="2"/>
+                            <Rectangle x:Name="DefenderProjectedHealthBar" 
+                                     Fill="#3C3" 
+                                     HorizontalAlignment="Left" 
+                                     Width="100" 
+                                     RadiusX="2" 
+                                     RadiusY="2"/>
+                            <Rectangle x:Name="DefenderHealthLostBar" 
+                                     Fill="#F73859" 
+                                     HorizontalAlignment="Left" 
+                                     Width="0" 
+                                     RadiusX="2" 
+                                     RadiusY="2"/>
+                            <TextBlock x:Name="DefenderProjectedHealthText" 
+                                     Text="65/100" 
+                                     HorizontalAlignment="Center" 
+                                     VerticalAlignment="Center" 
+                                     Foreground="White" 
+                                     FontWeight="Bold"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Defense -->
+                    <StackPanel Orientation="Horizontal" Margin="0,5" HorizontalAlignment="Center">
+                        <TextBlock Text="Defense: " 
+                                 FontSize="14" 
+                                 Foreground="#61DAFB"/>
+                        <TextBlock x:Name="DefenderDefenseText" 
+                                 Text="10" 
+                                 FontSize="14" 
+                                 FontWeight="Bold" 
+                                 Foreground="White"/>
+                    </StackPanel>
+
+                    <!-- Counter Attack Effectiveness -->
+                    <Border Background="#0F0F1A" Padding="5" CornerRadius="3" Margin="0,5,0,0">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="Counter Effectiveness: " 
+                                     FontSize="14" 
+                                     Foreground="#F73859"/>
+                            <TextBlock x:Name="DefenderEffectivenessText" 
+                                     Text="x0.8" 
+                                     FontSize="14" 
+                                     FontWeight="Bold" 
+                                     Foreground="White"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Terrain Defense -->
+                    <StackPanel Orientation="Horizontal" Margin="0,5" HorizontalAlignment="Center">
+                        <TextBlock Text="Terrain Defense: " 
+                                 FontSize="12" 
+                                 Foreground="#61DAFB"/>
+                        <TextBlock x:Name="DefenderTerrainDefenseText" 
+                                 Text="30%" 
+                                 FontSize="12" 
+                                 FontWeight="Bold" 
+                                 Foreground="White"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,15">
+            <Button x:Name="BtnAttack" 
+                    Content="ATTACK" 
+                    Width="120" 
+                    Height="40" 
+                    Background="#F73859" 
+                    Foreground="White" 
+                    FontSize="16" 
+                    FontWeight="Bold"
+                    Margin="0,0,15,0"
+                    Click="BtnAttack_Click">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" 
+                                            BorderThickness="0"
+                                            CornerRadius="5">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#FF2E4A"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+            <Button x:Name="BtnCancel" 
+                    Content="CANCEL" 
+                    Width="120" 
+                    Height="40" 
+                    Background="#4D4D65" 
+                    Foreground="White" 
+                    FontSize="16" 
+                    FontWeight="Bold"
+                    Click="BtnCancel_Click">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" 
+                                            BorderThickness="0"
+                                            CornerRadius="5">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#5E5E79"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </StackPanel>
+    </Grid>
+</Window>

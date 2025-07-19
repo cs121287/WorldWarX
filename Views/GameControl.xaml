@@ -1,0 +1,429 @@
+<UserControl x:Class="WorldWarX.Views.GameControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignHeight="600" d:DesignWidth="900">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Top Panel: Game Info -->
+        <Grid Grid.Row="0" Background="#0F0F1A">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Player Info -->
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="10,5">
+                <TextBlock x:Name="PlayerNameText" 
+                           Text="Player: Redonia" 
+                           Foreground="White" 
+                           FontSize="16" 
+                           FontWeight="SemiBold" 
+                           VerticalAlignment="Center"
+                           Margin="0,0,20,0"/>
+
+                <TextBlock Text="Funds:" 
+                           Foreground="#61DAFB" 
+                           FontSize="16" 
+                           FontWeight="SemiBold" 
+                           VerticalAlignment="Center"/>
+
+                <TextBlock x:Name="FundsText" 
+                           Text="5000G" 
+                           Foreground="Gold" 
+                           FontSize="16" 
+                           FontWeight="Bold" 
+                           VerticalAlignment="Center"
+                           Margin="5,0,20,0"/>
+
+                <TextBlock Text="Power:" 
+                           Foreground="#61DAFB" 
+                           FontSize="16" 
+                           FontWeight="SemiBold" 
+                           VerticalAlignment="Center"/>
+
+                <ProgressBar x:Name="PowerMeterBar" 
+                             Width="100" 
+                             Height="15" 
+                             Value="35" 
+                             Maximum="100" 
+                             Background="#2D2D3A" 
+                             Foreground="#F73859"
+                             VerticalAlignment="Center"
+                             Margin="5,0,5,0"/>
+
+                <Button x:Name="BtnUsePower" 
+                        Content="Use Power" 
+                        Width="80" 
+                        Height="25" 
+                        Background="#F73859" 
+                        Foreground="White" 
+                        FontSize="12" 
+                        VerticalAlignment="Center"
+                        Click="BtnUsePower_Click"/>
+            </StackPanel>
+
+            <!-- Turn Info -->
+            <TextBlock Grid.Column="1" 
+                       x:Name="TurnInfoText" 
+                       Text="Turn 1 - Player's Turn" 
+                       Foreground="#F73859" 
+                       FontSize="20" 
+                       FontWeight="Bold" 
+                       HorizontalAlignment="Center" 
+                       VerticalAlignment="Center"/>
+
+            <!-- Action Buttons -->
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="10,5">
+                <Button x:Name="BtnEndTurn" 
+                        Content="End Turn" 
+                        Width="100" 
+                        Height="30" 
+                        Background="#61DAFB" 
+                        Foreground="#1A1A2E" 
+                        FontSize="14" 
+                        FontWeight="Bold"
+                        Margin="0,0,10,0"
+                        Click="BtnEndTurn_Click"/>
+
+                <Button x:Name="BtnMenu" 
+                        Content="Menu" 
+                        Width="80" 
+                        Height="30" 
+                        Background="#4D4D65" 
+                        Foreground="White" 
+                        FontSize="14" 
+                        FontWeight="Bold"
+                        Click="BtnMenu_Click"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Main Game Board -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Game Map -->
+            <ScrollViewer Grid.Column="0" 
+                          HorizontalScrollBarVisibility="Auto" 
+                          VerticalScrollBarVisibility="Auto">
+                <Canvas x:Name="GameCanvas" 
+                        Background="#2D2D3A"
+                        ClipToBounds="True">
+                    <!-- Map tiles and units will be added here programmatically -->
+                </Canvas>
+            </ScrollViewer>
+
+            <!-- Info Panel -->
+            <Border Grid.Column="1" 
+                    Background="#0F0F1A" 
+                    BorderBrush="#61DAFB" 
+                    BorderThickness="1,0,0,0" 
+                    Width="220">
+                <StackPanel Margin="10">
+                    <TextBlock Text="SELECTED UNIT" 
+                               Foreground="#F73859" 
+                               FontSize="16" 
+                               FontWeight="Bold"
+                               Margin="0,0,0,10"/>
+
+                    <!-- Selected Unit Info -->
+                    <Border x:Name="SelectedUnitPanel" 
+                            Background="#2D2D3A" 
+                            Padding="10" 
+                            CornerRadius="5"
+                            Visibility="Collapsed">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Unit Header -->
+                            <StackPanel Grid.Row="0" Orientation="Horizontal">
+                                <Image x:Name="UnitImage" 
+                                       Width="32" 
+                                       Height="32" 
+                                       Margin="0,0,10,0"/>
+                                <TextBlock x:Name="UnitNameText" 
+                                           Text="Tank" 
+                                           FontSize="16" 
+                                           FontWeight="Bold" 
+                                           Foreground="White" 
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+
+                            <!-- Unit Stats -->
+                            <UniformGrid Grid.Row="1" Columns="2" Margin="0,10,0,0">
+                                <StackPanel Margin="0,0,5,5">
+                                    <TextBlock Text="Health:" 
+                                               Foreground="#61DAFB" 
+                                               FontSize="12"/>
+                                    <TextBlock x:Name="UnitHealthText" 
+                                               Text="100/100" 
+                                               Foreground="White" 
+                                               FontSize="14" 
+                                               FontWeight="SemiBold"/>
+                                </StackPanel>
+
+                                <StackPanel Margin="5,0,0,5">
+                                    <TextBlock Text="Movement:" 
+                                               Foreground="#61DAFB" 
+                                               FontSize="12"/>
+                                    <TextBlock x:Name="UnitMovementText" 
+                                               Text="5" 
+                                               Foreground="White" 
+                                               FontSize="14" 
+                                               FontWeight="SemiBold"/>
+                                </StackPanel>
+
+                                <StackPanel Margin="0,5,5,0">
+                                    <TextBlock Text="Attack:" 
+                                               Foreground="#61DAFB" 
+                                               FontSize="12"/>
+                                    <TextBlock x:Name="UnitAttackText" 
+                                               Text="25" 
+                                               Foreground="White" 
+                                               FontSize="14" 
+                                               FontWeight="SemiBold"/>
+                                </StackPanel>
+
+                                <StackPanel Margin="5,5,0,0">
+                                    <TextBlock Text="Defense:" 
+                                               Foreground="#61DAFB" 
+                                               FontSize="12"/>
+                                    <TextBlock x:Name="UnitDefenseText" 
+                                               Text="20" 
+                                               Foreground="White" 
+                                               FontSize="14" 
+                                               FontWeight="SemiBold"/>
+                                </StackPanel>
+
+                                <StackPanel Margin="0,5,5,0" Grid.ColumnSpan="2">
+                                    <TextBlock Text="Fuel:" 
+                                              Foreground="#61DAFB" 
+                                              FontSize="12"/>
+                                    <TextBlock x:Name="UnitFuelText" 
+                                              Text="60/60" 
+                                              Foreground="White" 
+                                              FontSize="14" 
+                                              FontWeight="SemiBold"/>
+                                </StackPanel>
+                            </UniformGrid>
+
+                            <!-- Transported Units Panel (only visible for transports) -->
+                            <Border x:Name="TransportedUnitsPanel" 
+                                   Grid.Row="2"
+                                   Background="#222233" 
+                                   Padding="5" 
+                                   CornerRadius="3" 
+                                   Margin="0,5,0,5"
+                                   Visibility="Collapsed">
+                                <StackPanel>
+                                    <TextBlock Text="Transported:" 
+                                              Foreground="#61DAFB" 
+                                              FontSize="12"/>
+                                    <TextBlock x:Name="TransportedUnitsText" 
+                                              Text="Infantry, Tank" 
+                                              Foreground="White" 
+                                              FontSize="12"
+                                              TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Unit Status -->
+                            <StackPanel Grid.Row="3" Margin="0,10,0,0">
+                                <TextBlock Text="Status:" 
+                                           Foreground="#61DAFB" 
+                                           FontSize="12"/>
+                                <TextBlock x:Name="UnitStatusText" 
+                                           Text="Ready" 
+                                           Foreground="#7BE7FF" 
+                                           FontSize="14" 
+                                           FontWeight="SemiBold"/>
+                            </StackPanel>
+
+                            <!-- Unit Actions -->
+                            <StackPanel Grid.Row="4" Margin="0,10,0,0">
+                                <Button x:Name="BtnAttack" 
+                                        Content="Attack" 
+                                        Height="30" 
+                                        Background="#F73859" 
+                                        Foreground="White" 
+                                        Margin="0,0,0,5"
+                                        Click="BtnAttack_Click"/>
+
+                                <Button x:Name="BtnCapture" 
+                                        Content="Capture" 
+                                        Height="30" 
+                                        Background="#61DAFB" 
+                                        Foreground="#1A1A2E" 
+                                        Margin="0,0,0,5"
+                                        Click="BtnCapture_Click"/>
+
+                                <Button x:Name="BtnLoad" 
+                                       Content="Load Unit" 
+                                       Height="30" 
+                                       Background="#61DAFB" 
+                                       Foreground="#1A1A2E" 
+                                       Margin="0,0,0,5"
+                                       Click="BtnLoad_Click"/>
+
+                                <Button x:Name="BtnUnload" 
+                                       Content="Unload" 
+                                       Height="30" 
+                                       Background="#61DAFB" 
+                                       Foreground="#1A1A2E" 
+                                       Margin="0,0,0,5"
+                                       Click="BtnUnload_Click"/>
+
+                                <Button x:Name="BtnResupply" 
+                                       Content="Resupply" 
+                                       Height="30" 
+                                       Background="#4D4D65" 
+                                       Foreground="White" 
+                                       Margin="0,0,0,5"
+                                       Click="BtnResupply_Click"/>
+
+                                <Button x:Name="BtnWait" 
+                                        Content="Wait" 
+                                        Height="30" 
+                                        Background="#4D4D65" 
+                                        Foreground="White"
+                                        Click="BtnWait_Click"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- No Unit Selected Message -->
+                    <TextBlock x:Name="NoSelectionText" 
+                               Text="No unit selected" 
+                               Foreground="Gray" 
+                               FontSize="14"
+                               HorizontalAlignment="Center"
+                               Margin="0,20,0,0"/>
+
+                    <!-- Terrain Info -->
+                    <TextBlock Text="TERRAIN" 
+                               Foreground="#F73859" 
+                               FontSize="16" 
+                               FontWeight="Bold"
+                               Margin="0,20,0,10"/>
+
+                    <Border x:Name="TerrainInfoPanel" 
+                            Background="#2D2D3A" 
+                            Padding="10" 
+                            CornerRadius="5">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Terrain Header -->
+                            <StackPanel Grid.Row="0" Orientation="Horizontal">
+                                <Image x:Name="TerrainImage" 
+                                       Width="32" 
+                                       Height="32" 
+                                       Margin="0,0,10,0"/>
+                                <TextBlock x:Name="TerrainNameText" 
+                                           Text="Plain" 
+                                           FontSize="16" 
+                                           FontWeight="Bold" 
+                                           Foreground="White" 
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+
+                            <!-- Terrain Stats -->
+                            <StackPanel Grid.Row="1" Margin="0,10,0,0">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                    <TextBlock Text="Defense:" 
+                                               Foreground="#61DAFB" 
+                                               FontSize="12" 
+                                               Width="70"/>
+                                    <TextBlock x:Name="TerrainDefenseText" 
+                                               Text="0%" 
+                                               Foreground="White" 
+                                               FontSize="12"/>
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                    <TextBlock Text="Movement:" 
+                                               Foreground="#61DAFB" 
+                                               FontSize="12" 
+                                               Width="70"/>
+                                    <TextBlock x:Name="TerrainMovementText" 
+                                               Text="1" 
+                                               Foreground="White" 
+                                               FontSize="12"/>
+                                </StackPanel>
+
+                                <StackPanel x:Name="TerrainOwnerPanel" Orientation="Horizontal" Visibility="Collapsed">
+                                    <TextBlock Text="Owner:" 
+                                               Foreground="#61DAFB" 
+                                               FontSize="12" 
+                                               Width="70"/>
+                                    <TextBlock x:Name="TerrainOwnerText" 
+                                               Text="Player" 
+                                               Foreground="White" 
+                                               FontSize="12"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Bottom Panel: Action Buttons -->
+        <Grid Grid.Row="2" Background="#0F0F1A">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="10,5">
+                <Button x:Name="BtnBuild" 
+                        Content="Build Unit" 
+                        Width="100" 
+                        Height="30" 
+                        Background="#61DAFB" 
+                        Foreground="#1A1A2E" 
+                        FontSize="14" 
+                        FontWeight="Bold"
+                        Margin="0,0,10,0"
+                        Click="BtnBuild_Click"/>
+
+                <Button x:Name="BtnSurrender" 
+                        Content="Surrender" 
+                        Width="100" 
+                        Height="30" 
+                        Background="#F73859" 
+                        Foreground="White" 
+                        FontSize="14" 
+                        FontWeight="Bold"
+                        Click="BtnSurrender_Click"/>
+            </StackPanel>
+
+            <Button x:Name="BtnBack" 
+                    Content="Back to Main Menu" 
+                    Width="150" 
+                    Height="30" 
+                    Background="#4D4D65" 
+                    Foreground="White" 
+                    FontSize="14" 
+                    HorizontalAlignment="Right"
+                    Margin="0,0,10,0"
+                    Click="BtnBack_Click"/>
+        </Grid>
+    </Grid>
+</UserControl>

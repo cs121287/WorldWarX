@@ -1,0 +1,31 @@
+<Window x:Class="WorldWarX.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:WorldWarX"
+        xmlns:views="clr-namespace:WorldWarX.Views"
+        Title="World War X" Height="600" Width="900"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Background="#1A1A2E">
+    
+    <!-- Main container for all content -->
+    <Grid>
+        <!-- Background that persists across all screens -->
+        <Border Background="#1A1A2E">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" ShadowDepth="0" Color="#111122" Opacity="0.6"/>
+            </Border.Effect>
+        </Border>
+        
+        <!-- This ContentControl will host our different screens -->
+        <ContentControl x:Name="MainContentControl" />
+        
+        <!-- Version and Copyright - shown on all screens -->
+        <TextBlock Text="Version 1.0 | © 2025 WWX Studios"
+                   FontSize="12"
+                   Foreground="#61DAFB"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Bottom"
+                   Margin="0,0,0,15"/>
+    </Grid>
+</Window>
