@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace WorldWarX.Models
 {
@@ -12,6 +13,8 @@ namespace WorldWarX.Models
         public int Height { get; private set; }
         public Tile[,] Tiles { get; private set; }
         public List<Player> Players { get; set; }
+        public WeatherSystem WeatherSystem { get; private set; }
+        public MapSeason Season { get; private set; }
         
         public GameMap(string name, int width, int height)
         {
@@ -20,6 +23,7 @@ namespace WorldWarX.Models
             Height = height;
             Tiles = new Tile[width, height];
             Players = new List<Player>();
+            Season = MapSeason.Summer; // Default to summer
         }
         
         // Initialize the map with default terrain (plains)
@@ -50,6 +54,13 @@ namespace WorldWarX.Models
             {
                 Tiles[x, y] = new Tile(terrain, x, y);
             }
+        }
+        
+        // Initialize weather system
+        public void InitializeWeather(MapSeason season, GameDifficulty difficulty, bool weatherEffectsEnabled, int? seed = null)
+        {
+            Season = season;
+            WeatherSystem = new WeatherSystem(season, difficulty, weatherEffectsEnabled, seed);
         }
         
         // Load a map from a file
@@ -99,6 +110,9 @@ namespace WorldWarX.Models
                         map.Tiles[hqX, hqY].Owner = player;
                     }
                 }
+                
+                // Initialize weather with default settings
+                map.InitializeWeather(MapSeason.Summer, GameDifficulty.Medium, true);
                 
                 return map;
             }
@@ -198,6 +212,9 @@ namespace WorldWarX.Models
             map.SetTile(8, 8, TerrainType.Beach);
             map.SetTile(8, 9, TerrainType.Beach);
             
+            // Initialize weather
+            map.InitializeWeather(MapSeason.Summer, GameDifficulty.Medium, true);
+            
             return map;
         }
         
@@ -222,15 +239,19 @@ namespace WorldWarX.Models
             }
         }
         
-        // Calculate the possible movement range for a unit
+        // Calculate the possible movement range for a unit accounting for weather
         public List<Tile> CalculateMovementRange(Unit unit, int x, int y, int movementPoints)
         {
             List<Tile> accessibleTiles = new List<Tile>();
             bool[,] visited = new bool[Width, Height];
             
+            // Apply weather movement penalty
+            float weatherPenalty = WeatherSystem?.GetMovementPenalty() ?? 1.0f;
+            int adjustedMovementPoints = (int)(movementPoints / weatherPenalty);
+            
             // Use breadth-first search to find all reachable tiles
             Queue<(int X, int Y, int RemainingMovement)> queue = new Queue<(int, int, int)>();
-            queue.Enqueue((x, y, movementPoints));
+            queue.Enqueue((x, y, adjustedMovementPoints));
             visited[x, y] = true;
             accessibleTiles.Add(Tiles[x, y]);
             
@@ -305,9 +326,32 @@ namespace WorldWarX.Models
             if (tile.OccupyingUnit != null && tile.OccupyingUnit.Owner != unit.Owner)
                 canMove = false;
                 
+            // Calculate movement cost with potential weather penalty
+            int baseCost = tile.MovementCost;
+            
+            // Apply additional penalties for certain terrain in bad weather
+            if (WeatherSystem != null)
+            {
+                switch (WeatherSystem.CurrentWeather)
+                {
+                    case WeatherType.Rain:
+                        // Rain makes forests and mountains harder to traverse
+                        if (tile.TerrainType == TerrainType.Forest || tile.TerrainType == TerrainType.Mountain)
+                            baseCost += 1;
+                        break;
+                    case WeatherType.Snow:
+                        // Snow makes most terrain harder to traverse
+                        if (tile.TerrainType != TerrainType.Road && tile.TerrainType != TerrainType.Bridge)
+                            baseCost += 1;
+                        break;
+                    case WeatherType.Fog:
+                        // Fog has minimal impact on movement cost
+                        break;
+                }
+            }
+            
             // Check if we have enough movement points left
-            int movementCost = tile.MovementCost;
-            if (remainingMovement - movementCost < 0)
+            if (remainingMovement - baseCost < 0)
                 canMove = false;
                 
             // Check if unit has fuel to move
@@ -316,7 +360,7 @@ namespace WorldWarX.Models
                 
             if (canMove)
             {
-                queue.Enqueue((x, y, remainingMovement - movementCost));
+                queue.Enqueue((x, y, remainingMovement - baseCost));
                 visited[x, y] = true;
                 accessibleTiles.Add(tile);
             }

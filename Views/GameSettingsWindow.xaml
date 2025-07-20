@@ -1,0 +1,156 @@
+<Window x:Class="WorldWarX.Views.GameSettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Game Settings" Height="400" Width="500"
+        WindowStartupLocation="CenterOwner"
+        Background="#1A1A2E"
+        ResizeMode="NoResize">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header -->
+        <TextBlock Text="GAME SETTINGS" 
+                   Grid.Row="0"
+                   Foreground="#F73859" 
+                   FontSize="24" 
+                   FontWeight="Bold" 
+                   HorizontalAlignment="Center" 
+                   Margin="0,0,0,20"/>
+        
+        <!-- Settings Content -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Left Column -->
+            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                <!-- Game Mode -->
+                <TextBlock Text="GAME MODE" 
+                           Foreground="#61DAFB" 
+                           FontSize="16" 
+                           FontWeight="Bold" 
+                           Margin="0,0,0,5"/>
+                           
+                <ComboBox x:Name="GameModeComboBox" 
+                          Margin="0,0,0,15">
+                    <ComboBoxItem Content="Campaign"/>
+                    <ComboBoxItem Content="Quick Battle" IsSelected="True"/>
+                </ComboBox>
+                
+                <!-- Difficulty -->
+                <TextBlock Text="DIFFICULTY" 
+                           Foreground="#61DAFB" 
+                           FontSize="16" 
+                           FontWeight="Bold" 
+                           Margin="0,0,0,5"/>
+                           
+                <ComboBox x:Name="DifficultyComboBox" 
+                          Margin="0,0,0,15">
+                    <ComboBoxItem Content="Easy"/>
+                    <ComboBoxItem Content="Medium" IsSelected="True"/>
+                    <ComboBoxItem Content="Hard"/>
+                    <ComboBoxItem Content="Expert"/>
+                </ComboBox>
+                
+                <!-- Map Size -->
+                <TextBlock Text="MAP SIZE" 
+                           Foreground="#61DAFB" 
+                           FontSize="16" 
+                           FontWeight="Bold" 
+                           Margin="0,0,0,5"/>
+                           
+                <ComboBox x:Name="MapSizeComboBox" 
+                          Margin="0,0,0,15">
+                    <ComboBoxItem Content="Small (8x8)"/>
+                    <ComboBoxItem Content="Medium (12x10)" IsSelected="True"/>
+                    <ComboBoxItem Content="Large (16x12)"/>
+                    <ComboBoxItem Content="Huge (20x16)"/>
+                </ComboBox>
+            </StackPanel>
+            
+            <!-- Right Column -->
+            <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                <!-- Map Season -->
+                <TextBlock Text="MAP SEASON" 
+                           Foreground="#61DAFB" 
+                           FontSize="16" 
+                           FontWeight="Bold" 
+                           Margin="0,0,0,5"/>
+                           
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                    <RadioButton x:Name="SummerRadioButton" 
+                                 Content="Summer" 
+                                 Foreground="White" 
+                                 Margin="0,0,15,0" 
+                                 IsChecked="True"/>
+                    <RadioButton x:Name="WinterRadioButton" 
+                                 Content="Winter" 
+                                 Foreground="White"/>
+                </StackPanel>
+                
+                <!-- Weather Effects -->
+                <TextBlock Text="WEATHER EFFECTS" 
+                           Foreground="#61DAFB" 
+                           FontSize="16" 
+                           FontWeight="Bold" 
+                           Margin="0,0,0,5"/>
+                           
+                <CheckBox x:Name="WeatherEffectsCheckBox" 
+                          Content="Enable Weather Effects" 
+                          Foreground="White" 
+                          IsChecked="True" 
+                          Margin="0,0,0,10"/>
+                          
+                <TextBlock Text="Weather effects impact movement, combat accuracy, and visibility."
+                           Foreground="#AAAAAA"
+                           FontSize="12"
+                           TextWrapping="Wrap"
+                           Margin="0,0,0,15"/>
+                           
+                <!-- Starting Funds -->
+                <TextBlock Text="STARTING FUNDS" 
+                           Foreground="#61DAFB" 
+                           FontSize="16" 
+                           FontWeight="Bold" 
+                           Margin="0,0,0,5"/>
+                           
+                <ComboBox x:Name="FundsComboBox" 
+                          Margin="0,0,0,15">
+                    <ComboBoxItem Content="Standard (5000)"/>
+                    <ComboBoxItem Content="Low (3000)"/>
+                    <ComboBoxItem Content="High (10000)" IsSelected="True"/>
+                </ComboBox>
+            </StackPanel>
+        </Grid>
+        
+        <!-- Buttons -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
+            <Button x:Name="BtnStart" 
+                    Content="START GAME" 
+                    Width="150" 
+                    Height="40" 
+                    Background="#F73859" 
+                    Foreground="White" 
+                    FontSize="16" 
+                    FontWeight="Bold" 
+                    Margin="0,0,20,0" 
+                    Click="BtnStart_Click"/>
+                    
+            <Button x:Name="BtnCancel" 
+                    Content="CANCEL" 
+                    Width="150" 
+                    Height="40" 
+                    Background="#4D4D65" 
+                    Foreground="White" 
+                    FontSize="16" 
+                    FontWeight="Bold" 
+                    Click="BtnCancel_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>
