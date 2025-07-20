@@ -1,7 +1,7 @@
 <Window x:Class="WorldWarX.GameWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="World War X - Game" Height="600" Width="900"
+        Title="World War X - Game" Height="900" Width="1200"
         Background="#1A1A2E">
     <Grid>
         <TextBlock Text="Game Window - Coming Soon" 

@@ -18,6 +18,9 @@ namespace WorldWarX.Models
         public int Cost { get; set; }
         public MovementType MovementType { get; set; }
 
+        // Vision range property for fog of war
+        public int VisionRange { get; set; }
+
         // Fuel system
         public int Fuel { get; private set; }
         public int MaxFuel { get; set; }
@@ -78,6 +81,7 @@ namespace WorldWarX.Models
                     MovementType = MovementType.Infantry;
                     MaxFuel = 99; // Infantry has practically unlimited fuel
                     FuelConsumptionPerTurn = 0; // No fuel consumption
+                    VisionRange = 10; // Basic visibility range
                     CanTransport = false;
                     UnitImage = LoadUnitImage("infantry");
                     break;
@@ -92,6 +96,7 @@ namespace WorldWarX.Models
                     MovementType = MovementType.Infantry;
                     MaxFuel = 70; // Mech infantry has equipment that needs fuel
                     FuelConsumptionPerTurn = 1; // Low consumption
+                    VisionRange = 12; // Slightly better visibility than infantry
                     CanTransport = false;
                     UnitImage = LoadUnitImage("mech");
                     break;
@@ -106,6 +111,7 @@ namespace WorldWarX.Models
                     MovementType = MovementType.Treaded;
                     MaxFuel = 60;
                     FuelConsumptionPerTurn = 2;
+                    VisionRange = 15; // Good visibility with optics
                     CanTransport = false;
                     UnitImage = LoadUnitImage("tank");
                     break;
@@ -120,6 +126,7 @@ namespace WorldWarX.Models
                     MovementType = MovementType.Treaded;
                     MaxFuel = 50;
                     FuelConsumptionPerTurn = 3;
+                    VisionRange = 13; // Decent visibility
                     CanTransport = false;
                     UnitImage = LoadUnitImage("heavy_tank");
                     break;
@@ -134,6 +141,7 @@ namespace WorldWarX.Models
                     MovementType = MovementType.Wheeled;
                     MaxFuel = 50;
                     FuelConsumptionPerTurn = 1;
+                    VisionRange = 20; // Good spotting capabilities
                     CanTransport = false;
                     UnitImage = LoadUnitImage("artillery");
                     break;
@@ -148,6 +156,7 @@ namespace WorldWarX.Models
                     MovementType = MovementType.Wheeled;
                     MaxFuel = 40;
                     FuelConsumptionPerTurn = 1;
+                    VisionRange = 22; // Advanced targeting systems provide good vision
                     CanTransport = false;
                     UnitImage = LoadUnitImage("rocket");
                     break;
@@ -162,6 +171,7 @@ namespace WorldWarX.Models
                     MovementType = MovementType.Treaded;
                     MaxFuel = 50;
                     FuelConsumptionPerTurn = 2;
+                    VisionRange = 25; // Radar systems provide excellent vision
                     CanTransport = false;
                     UnitImage = LoadUnitImage("antiair");
                     break;
@@ -176,6 +186,7 @@ namespace WorldWarX.Models
                     MovementType = MovementType.Treaded;
                     MaxFuel = 70;
                     FuelConsumptionPerTurn = 1;
+                    VisionRange = 15; // Good scouting capabilities
                     CanTransport = true;
                     TransportCapacity = 1;
                     TransportableUnitTypes.Add(UnitType.Infantry);
@@ -193,6 +204,7 @@ namespace WorldWarX.Models
                     MovementType = MovementType.Wheeled;
                     MaxFuel = 80;
                     FuelConsumptionPerTurn = 1;
+                    VisionRange = 10; // Basic vision range
                     CanTransport = false;
                     CanResupply = true;
                     SupplyRange = 1; // Can resupply adjacent units
@@ -211,6 +223,7 @@ namespace WorldWarX.Models
                     MovementType = MovementType.Air;
                     MaxFuel = 40;
                     FuelConsumptionPerTurn = 4;
+                    VisionRange = 25; // Excellent aerial vision
                     CanTransport = false;
                     UnitImage = LoadUnitImage("helicopter");
                     break;
@@ -225,6 +238,7 @@ namespace WorldWarX.Models
                     MovementType = MovementType.Air;
                     MaxFuel = 50;
                     FuelConsumptionPerTurn = 5;
+                    VisionRange = 27; // Best vision of all units
                     CanTransport = false;
                     UnitImage = LoadUnitImage("fighter");
                     break;
@@ -239,6 +253,7 @@ namespace WorldWarX.Models
                     MovementType = MovementType.Air;
                     MaxFuel = 40;
                     FuelConsumptionPerTurn = 5;
+                    VisionRange = 16; // Good vision but focused on bombing
                     CanTransport = false;
                     UnitImage = LoadUnitImage("bomber");
                     break;
@@ -253,6 +268,7 @@ namespace WorldWarX.Models
                     MovementType = MovementType.Air;
                     MaxFuel = 35;
                     FuelConsumptionPerTurn = 6;
+                    VisionRange = 30; // Advanced electronics provide excellent vision
                     CanTransport = false;
                     UnitImage = LoadUnitImage("stealth");
                     break;
@@ -267,6 +283,7 @@ namespace WorldWarX.Models
                     MovementType = MovementType.Air;
                     MaxFuel = 40;
                     FuelConsumptionPerTurn = 4;
+                    VisionRange = 14; // Moderate aerial vision
                     CanTransport = true;
                     TransportCapacity = 1;
                     TransportableUnitTypes.Add(UnitType.Infantry);
@@ -286,6 +303,7 @@ namespace WorldWarX.Models
                     MovementType = MovementType.Ship;
                     MaxFuel = 60;
                     FuelConsumptionPerTurn = 2;
+                    VisionRange = 17; // Good naval radar systems
                     CanTransport = false;
                     UnitImage = LoadUnitImage("battleship");
                     break;
@@ -300,6 +318,7 @@ namespace WorldWarX.Models
                     MovementType = MovementType.Ship;
                     MaxFuel = 70;
                     FuelConsumptionPerTurn = 2;
+                    VisionRange = 14; // Moderate naval radar
                     CanTransport = false;
                     UnitImage = LoadUnitImage("cruiser");
                     break;
@@ -314,6 +333,7 @@ namespace WorldWarX.Models
                     MovementType = MovementType.Ship;
                     MaxFuel = 50;
                     FuelConsumptionPerTurn = 3;
+                    VisionRange = 8; // Limited periscope vision
                     CanTransport = false;
                     UnitImage = LoadUnitImage("submarine");
                     break;
@@ -328,6 +348,7 @@ namespace WorldWarX.Models
                     MovementType = MovementType.Lander;
                     MaxFuel = 60;
                     FuelConsumptionPerTurn = 1;
+                    VisionRange = 13; // Basic naval vision
                     CanTransport = true;
                     TransportCapacity = 2;
                     TransportableUnitTypes.Add(UnitType.Infantry);
@@ -350,6 +371,7 @@ namespace WorldWarX.Models
                     MovementType = MovementType.Ship;
                     MaxFuel = 70;
                     FuelConsumptionPerTurn = 2;
+                    VisionRange = 20; // Aircraft and radar provide excellent vision
                     CanTransport = true;
                     TransportCapacity = 2;
                     TransportableUnitTypes.Add(UnitType.Fighter);
@@ -366,6 +388,128 @@ namespace WorldWarX.Models
             string colorCode = Owner?.ColorCode ?? "red";
             string path = $"pack://application:,,,/Assets/Units/{colorCode}_{unitName}.png";
             return new BitmapImage(new System.Uri(path));
+        }
+
+        // Get effective vision range accounting for terrain
+        public int GetEffectiveVisionRange(GameMap gameMap)
+        {
+            if (gameMap == null)
+                return VisionRange;
+
+            // Get the terrain the unit is standing on
+            Tile currentTile = gameMap.GetTile(X, Y);
+            if (currentTile == null)
+                return VisionRange;
+
+            // Start with the base vision range
+            int effectiveVision = VisionRange;
+
+            // Apply terrain modifiers based on unit type
+            switch (MovementType)
+            {
+                case MovementType.Infantry:
+                    // Infantry gets bonus on mountains, reduced in forests
+                    if (currentTile.TerrainType == TerrainType.Mountain)
+                        effectiveVision += 4;
+                    else if (currentTile.TerrainType == TerrainType.Forest)
+                        effectiveVision -= 2;
+                    else if (currentTile.TerrainType == TerrainType.Sea)
+                        effectiveVision -= 5; // Infantry can't see well on water
+                    else if (currentTile.TerrainType == TerrainType.City ||
+                             currentTile.TerrainType == TerrainType.HQ)
+                        effectiveVision += 2; // Better vision in urban areas
+                    break;
+
+                case MovementType.Wheeled:
+                    // Wheeled vehicles are great on roads, poor in rough terrain
+                    if (currentTile.TerrainType == TerrainType.Road ||
+                        currentTile.TerrainType == TerrainType.Bridge)
+                        effectiveVision += 2;
+                    else if (currentTile.TerrainType == TerrainType.Forest)
+                        effectiveVision -= 3;
+                    else if (currentTile.TerrainType == TerrainType.Mountain)
+                        effectiveVision -= 2;
+                    break;
+
+                case MovementType.Treaded:
+                    // Tanks have moderate vision in most terrain
+                    if (currentTile.TerrainType == TerrainType.Forest)
+                        effectiveVision -= 2;
+                    else if (currentTile.TerrainType == TerrainType.Mountain)
+                        effectiveVision -= 1;
+                    break;
+
+                case MovementType.Air:
+                    // Air units have great vision overall except in mountains
+                    if (currentTile.TerrainType == TerrainType.Mountain)
+                        effectiveVision -= 2;
+                    else if (currentTile.TerrainType == TerrainType.Airport)
+                        effectiveVision += 4; // Bonus at airports
+                    else if (currentTile.TerrainType == TerrainType.Sea)
+                        effectiveVision += 3; // Great visibility over water
+                    break;
+
+                case MovementType.Ship:
+                    // Naval units excel on water, terrible on land
+                    if (currentTile.TerrainType == TerrainType.Sea)
+                        effectiveVision += 5;
+                    else if (currentTile.TerrainType == TerrainType.Seaport)
+                        effectiveVision += 4;
+                    else if (currentTile.TerrainType != TerrainType.Beach)
+                        effectiveVision -= 5; // Poor visibility on land
+                    break;
+
+                case MovementType.Lander:
+                    // Amphibious units are best at beaches
+                    if (currentTile.TerrainType == TerrainType.Beach)
+                        effectiveVision += 4;
+                    else if (currentTile.TerrainType == TerrainType.Sea)
+                        effectiveVision += 3;
+                    else if (currentTile.TerrainType == TerrainType.River)
+                        effectiveVision += 2;
+                    else
+                        effectiveVision -= 3; // Poor on pure land
+                    break;
+            }
+
+            // Ensure vision doesn't go below 1
+            return Math.Max(1, effectiveVision);
+        }
+
+        // Get vision information for display in UI
+        public string GetVisionInfoString(GameMap gameMap)
+        {
+            int baseVision = VisionRange;
+            int effectiveVision = GetEffectiveVisionRange(gameMap);
+            int modifier = effectiveVision - baseVision;
+
+            // Format with modifier info
+            if (modifier != 0)
+            {
+                string modifierText = modifier > 0 ? $"+{modifier}" : modifier.ToString();
+                return $"{effectiveVision} ({baseVision}{modifierText})";
+            }
+            else
+            {
+                return effectiveVision.ToString();
+            }
+        }
+
+        // Check if unit is visible to a player (for fog of war)
+        public bool IsVisibleTo(Player player, GameMap gameMap)
+        {
+            // Units are always visible to their owner
+            if (player == Owner)
+                return true;
+
+            // Check fog of war if implemented
+            if (gameMap.FogOfWar != null && gameMap.FogOfWar.Enabled)
+            {
+                return gameMap.FogOfWar.IsTileVisible(X, Y, player);
+            }
+
+            // Default to visible if fog of war is not implemented/enabled
+            return true;
         }
 
         // Take damage

@@ -27,6 +27,7 @@ namespace WorldWarX.Views
         private Rectangle[,] _tileRects;
         private Image[,] _tileImages;
         private Image[,] _unitImages;
+        private Rectangle[,] _fogRects; // Fog of war overlays
         private const int TILE_SIZE = 40;
 
         // Game state
@@ -36,6 +37,10 @@ namespace WorldWarX.Views
         private List<Tile> _attackRange;
         private bool _isMovingUnit;
         private bool _isAttacking;
+
+        // Fog of war settings
+        private bool _fogOfWarEnabled = true;
+        private bool _showVisionRanges = false;
 
         // Events for navigation
         public event EventHandler BackToMainMenuRequested;
@@ -84,8 +89,12 @@ namespace WorldWarX.Views
             // Add some initial units for testing
             AddInitialUnits();
 
+            // Initialize fog of war visibility
+            InitializeFogOfWar();
+
             // Update UI
             UpdateGameInfo();
+            UpdateFogOfWar();
         }
 
         private void InitializeGameUI()
@@ -101,6 +110,7 @@ namespace WorldWarX.Views
             _tileRects = new Rectangle[_gameMap.Width, _gameMap.Height];
             _tileImages = new Image[_gameMap.Width, _gameMap.Height];
             _unitImages = new Image[_gameMap.Width, _gameMap.Height];
+            _fogRects = new Rectangle[_gameMap.Width, _gameMap.Height]; // Initialize fog of war overlay rectangles
 
             // Create tiles
             for (int x = 0; x < _gameMap.Width; x++)
@@ -139,6 +149,23 @@ namespace WorldWarX.Views
                     GameCanvas.Children.Add(tileImage);
                     _tileImages[x, y] = tileImage;
 
+                    // Create fog of war overlay
+                    Rectangle fogRect = new Rectangle
+                    {
+                        Width = TILE_SIZE,
+                        Height = TILE_SIZE,
+                        Fill = new SolidColorBrush(Colors.Black),
+                        Opacity = 1.0, // Start fully opaque (fog)
+                        StrokeThickness = 0
+                    };
+
+                    Canvas.SetLeft(fogRect, x * TILE_SIZE);
+                    Canvas.SetTop(fogRect, y * TILE_SIZE);
+                    Canvas.SetZIndex(fogRect, 3); // Above terrain/units but below UI
+
+                    GameCanvas.Children.Add(fogRect);
+                    _fogRects[x, y] = fogRect;
+
                     // Add click handler for tile
                     int tileX = x;
                     int tileY = y;
@@ -153,22 +180,29 @@ namespace WorldWarX.Views
             BtnLoad.IsEnabled = false;
             BtnUnload.IsEnabled = false;
             BtnResupply.IsEnabled = false;
+            BtnShowVision.IsEnabled = false;
 
             // Hide unit info panel
             SelectedUnitPanel.Visibility = Visibility.Collapsed;
             NoSelectionText.Visibility = Visibility.Visible;
+
+            // Hide vision info text initially
+            VisionInfoText.Visibility = Visibility.Collapsed;
+
+            // Set fog of war checkbox state
+            FogOfWarCheckbox.IsChecked = _fogOfWarEnabled;
         }
 
         private void AddInitialUnits()
         {
             // Add some units for the human player
-            AddUnit(new Unit(UnitType.Infantry, _humanPlayer) { X = 1, Y = 2 });
-            AddUnit(new Unit(UnitType.Tank, _humanPlayer) { X = 2, Y = 1 });
-            AddUnit(new Unit(UnitType.TransportVehicle, _humanPlayer) { X = 1, Y = 4 });
+            AddUnit(new Unit(UnitType.Infantry, _humanPlayer) { X = 1, Y = 2, VisionRange = 10 });
+            AddUnit(new Unit(UnitType.Tank, _humanPlayer) { X = 2, Y = 1, VisionRange = 15 });
+            AddUnit(new Unit(UnitType.TransportVehicle, _humanPlayer) { X = 1, Y = 4, VisionRange = 15 });
 
             // Add some units for the AI player
-            AddUnit(new Unit(UnitType.Infantry, _aiPlayer) { X = 10, Y = 2 });
-            AddUnit(new Unit(UnitType.Tank, _aiPlayer) { X = 9, Y = 1 });
+            AddUnit(new Unit(UnitType.Infantry, _aiPlayer) { X = 10, Y = 2, VisionRange = 10 });
+            AddUnit(new Unit(UnitType.Tank, _aiPlayer) { X = 9, Y = 1, VisionRange = 15 });
         }
 
         private void AddUnit(Unit unit)
@@ -195,6 +229,37 @@ namespace WorldWarX.Views
             _unitImages[unit.X, unit.Y] = unitImage;
         }
 
+        private void InitializeFogOfWar()
+        {
+            // Create visibility states for each player
+            _visibilityState = new Dictionary<int, VisibilityState[,]>();
+            foreach (Player player in _gameMap.Players)
+            {
+                _visibilityState[player.PlayerId] = new VisibilityState[_gameMap.Width, _gameMap.Height];
+
+                // Initialize all tiles as unseen
+                for (int x = 0; x < _gameMap.Width; x++)
+                {
+                    for (int y = 0; y < _gameMap.Height; y++)
+                    {
+                        _visibilityState[player.PlayerId][x, y] = VisibilityState.Unseen;
+                    }
+                }
+            }
+
+            // Calculate initial visibility
+            UpdateVisibility();
+        }
+
+        // Visibility state for each tile
+        private Dictionary<int, VisibilityState[,]> _visibilityState;
+        private enum VisibilityState
+        {
+            Unseen,     // Never seen before
+            Previously, // Seen before but not currently
+            Visible     // Currently visible
+        }
+
         private void UpdateGameInfo()
         {
             // Update player info
@@ -211,6 +276,13 @@ namespace WorldWarX.Views
 
         private void TileClicked(int x, int y)
         {
+            // Check if tile is visible in fog of war
+            if (_fogOfWarEnabled && IsTileHiddenInFog(x, y))
+            {
+                // Can't interact with tiles hidden in fog
+                return;
+            }
+
             // Get tile that was clicked
             Tile clickedTile = _gameMap.Tiles[x, y];
 
@@ -286,6 +358,9 @@ namespace WorldWarX.Views
             // Enable resupply button if unit's fuel is below maximum
             BtnResupply.IsEnabled = unit.GetFuelPercentage() < 1.0f;
 
+            // Enable vision button for fog of war
+            BtnShowVision.IsEnabled = true;
+
             // Enter movement selection mode
             _isMovingUnit = true;
         }
@@ -306,8 +381,53 @@ namespace WorldWarX.Views
                 if (tile.OccupyingUnit != null && tile.OccupyingUnit.Owner == unit.Owner)
                     continue;
 
+                // Skip tiles that are not visible in fog of war
+                if (_fogOfWarEnabled && !IsTileVisible(tile.X, tile.Y))
+                    continue;
+
                 // Highlight with semi-transparent blue
                 HighlightTile(tile.X, tile.Y, Color.FromArgb(100, 0, 100, 255));
+            }
+        }
+
+        private void ShowVisionRange(Unit unit)
+        {
+            if (unit == null) return;
+
+            // Clear previous highlights
+            ClearHighlights();
+
+            // Highlight unit's position
+            HighlightTile(unit.X, unit.Y, Colors.Yellow);
+
+            int visionRange = unit.VisionRange;
+
+            // Apply terrain modifier if unit is on certain terrain types
+            TerrainType terrain = _gameMap.Tiles[unit.X, unit.Y].TerrainType;
+            int terrainBonus = GetTerrainVisionModifier(terrain, unit.MovementType);
+            int effectiveVisionRange = Math.Max(1, visionRange + terrainBonus);
+
+            // Show vision range info
+            VisionInfoText.Text = $"Vision Range: {visionRange} base + {terrainBonus} terrain = {effectiveVisionRange}";
+            VisionInfoText.Visibility = Visibility.Visible;
+
+            // Highlight tiles in vision range
+            for (int x = Math.Max(0, unit.X - effectiveVisionRange); x <= Math.Min(_gameMap.Width - 1, unit.X + effectiveVisionRange); x++)
+            {
+                for (int y = Math.Max(0, unit.Y - effectiveVisionRange); y <= Math.Min(_gameMap.Height - 1, unit.Y + effectiveVisionRange); y++)
+                {
+                    // Use Manhattan distance for visibility calculation
+                    int distance = Math.Abs(x - unit.X) + Math.Abs(y - unit.Y);
+
+                    if (distance <= effectiveVisionRange)
+                    {
+                        // Calculate intensity based on distance
+                        byte alpha = (byte)(150 - (100 * distance / effectiveVisionRange));
+                        Color visionColor = Color.FromArgb(alpha, 100, 200, 100);
+
+                        HighlightTile(x, y, visionColor);
+                    }
+                }
             }
         }
 
@@ -331,8 +451,10 @@ namespace WorldWarX.Views
                         Tile tile = _gameMap.Tiles[x, y];
                         _attackRange.Add(tile);
 
-                        // Check if there's an enemy unit on this tile
-                        if (tile.OccupyingUnit != null && tile.OccupyingUnit.Owner != unit.Owner)
+                        // Check if there's an enemy unit on this tile and it's visible
+                        if (tile.OccupyingUnit != null &&
+                            tile.OccupyingUnit.Owner != unit.Owner &&
+                            (!_fogOfWarEnabled || IsTileVisible(x, y)))
                             return true;
                     }
                 }
@@ -416,6 +538,10 @@ namespace WorldWarX.Views
 
             // Update unit info to show it has moved
             UpdateUnitInfo(unit);
+
+            // Update fog of war as unit moved to new position
+            UpdateVisibility();
+            UpdateFogOfWar();
 
             // Add power charge for movement
             unit.Owner.AddPowerCharge(1);
@@ -568,6 +694,7 @@ namespace WorldWarX.Views
             {
                 SelectedUnitPanel.Visibility = Visibility.Collapsed;
                 NoSelectionText.Visibility = Visibility.Visible;
+                VisionInfoText.Visibility = Visibility.Collapsed;
                 return;
             }
 
@@ -585,6 +712,23 @@ namespace WorldWarX.Views
 
             // Add fuel info
             UnitFuelText.Text = unit.GetFuelStatusText();
+
+            // Add vision range info
+            TerrainType terrain = _gameMap.Tiles[unit.X, unit.Y].TerrainType;
+            int terrainBonus = GetTerrainVisionModifier(terrain, unit.MovementType);
+            int effectiveVision = Math.Max(1, unit.VisionRange + terrainBonus);
+
+            if (terrainBonus != 0)
+            {
+                UnitVisionText.Text = $"{effectiveVision} ({unit.VisionRange}{(terrainBonus > 0 ? "+" : "")}{terrainBonus})";
+            }
+            else
+            {
+                UnitVisionText.Text = effectiveVision.ToString();
+            }
+
+            // Add unit type info
+            UnitTypeText.Text = $"Type: {unit.UnitType} ({unit.MovementType})";
 
             // Add transported units info if applicable
             if (unit.CanTransport && unit.TransportedUnits.Count > 0)
@@ -618,6 +762,9 @@ namespace WorldWarX.Views
             BtnLoad.IsEnabled = !unit.HasMoved && unit.CanTransport && CheckForLoadableUnits(unit);
             BtnUnload.IsEnabled = !unit.HasMoved && unit.CanTransport && unit.TransportedUnits.Count > 0;
             BtnResupply.IsEnabled = !unit.HasMoved && !unit.HasAttacked && unit.GetFuelPercentage() < 1.0f;
+
+            // Enable vision button
+            BtnShowVision.IsEnabled = true;
         }
 
         private void UpdateTerrainInfo(Tile tile)
@@ -661,6 +808,9 @@ namespace WorldWarX.Views
                     }
                 }
             }
+
+            // Hide vision info text
+            VisionInfoText.Visibility = Visibility.Collapsed;
         }
 
         private void ClearSelection()
@@ -682,6 +832,7 @@ namespace WorldWarX.Views
             BtnLoad.IsEnabled = false;
             BtnUnload.IsEnabled = false;
             BtnResupply.IsEnabled = false;
+            BtnShowVision.IsEnabled = false;
         }
 
         private void BtnAttack_Click(object sender, RoutedEventArgs e)
@@ -702,8 +853,10 @@ namespace WorldWarX.Views
             // Highlight attackable tiles
             foreach (Tile tile in _attackRange)
             {
-                // Only highlight tiles with enemy units
-                if (tile.OccupyingUnit != null && tile.OccupyingUnit.Owner != _selectedUnit.Owner)
+                // Only highlight tiles with enemy units that are visible
+                if (tile.OccupyingUnit != null &&
+                    tile.OccupyingUnit.Owner != _selectedUnit.Owner &&
+                    (!_fogOfWarEnabled || IsTileVisible(tile.X, tile.Y)))
                 {
                     HighlightTile(tile.X, tile.Y, Color.FromArgb(180, 255, 0, 0));
                 }
@@ -780,6 +933,26 @@ namespace WorldWarX.Views
             HighlightTile(_selectedUnit.X, _selectedUnit.Y, Colors.Gray);
         }
 
+        private void BtnShowVision_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedUnit == null) return;
+
+            ShowVisionRange(_selectedUnit);
+        }
+
+        private void FogOfWarCheckbox_Click(object sender, RoutedEventArgs e)
+        {
+            _fogOfWarEnabled = FogOfWarCheckbox.IsChecked ?? true;
+            UpdateFogOfWar();
+
+            if (_selectedUnit != null)
+            {
+                // Refresh unit's movement range display with new fog settings
+                ClearHighlights();
+                ShowMovementRange(_selectedUnit);
+            }
+        }
+
         private void BtnEndTurn_Click(object sender, RoutedEventArgs e)
         {
             // End current player's turn
@@ -793,6 +966,10 @@ namespace WorldWarX.Views
 
                 // Clear selection
                 ClearSelection();
+
+                // Update fog of war for AI's perspective
+                UpdateVisibility();
+                UpdateFogOfWar();
 
                 // Run AI turn
                 ExecuteAITurn();
@@ -810,6 +987,10 @@ namespace WorldWarX.Views
 
                 // Update UI
                 UpdateGameInfo();
+
+                // Update fog of war for player's perspective
+                UpdateVisibility();
+                UpdateFogOfWar();
             }
         }
 
@@ -820,6 +1001,9 @@ namespace WorldWarX.Views
 
             // Collect income
             _currentPlayer.CollectIncome();
+
+            // Update visibility for new turn
+            UpdateVisibility();
 
             // Update UI
             UpdateGameInfo();
@@ -956,10 +1140,92 @@ namespace WorldWarX.Views
             {
                 // Place the newly produced unit on the map
                 Unit newUnit = productionWindow.ProducedUnit;
+
+                // Set default vision range based on unit type
+                AssignDefaultVisionRange(newUnit);
+
                 AddUnit(newUnit);
+
+                // Update visibility as new unit provides vision
+                UpdateVisibility();
+                UpdateFogOfWar();
 
                 // Update UI
                 UpdateGameInfo();
+            }
+        }
+
+        private void AssignDefaultVisionRange(Unit unit)
+        {
+            // Assign vision range based on unit type
+            switch (unit.UnitType)
+            {
+                // Land units
+                case UnitType.Infantry:
+                    unit.VisionRange = 10;
+                    break;
+                case UnitType.Mechanized:
+                    unit.VisionRange = 12;
+                    break;
+                case UnitType.Tank:
+                    unit.VisionRange = 15;
+                    break;
+                case UnitType.HeavyTank:
+                    unit.VisionRange = 13;
+                    break;
+                case UnitType.Artillery:
+                    unit.VisionRange = 20;
+                    break;
+                case UnitType.RocketLauncher:
+                    unit.VisionRange = 22;
+                    break;
+                case UnitType.AntiAir:
+                    unit.VisionRange = 25;
+                    break;
+                case UnitType.TransportVehicle:
+                    unit.VisionRange = 15;
+                    break;
+                case UnitType.SupplyTruck:
+                    unit.VisionRange = 10;
+                    break;
+
+                // Air units
+                case UnitType.Helicopter:
+                    unit.VisionRange = 25;
+                    break;
+                case UnitType.Fighter:
+                    unit.VisionRange = 27;
+                    break;
+                case UnitType.Bomber:
+                    unit.VisionRange = 16;
+                    break;
+                case UnitType.Stealth:
+                    unit.VisionRange = 30;
+                    break;
+                case UnitType.TransportHelicopter:
+                    unit.VisionRange = 14;
+                    break;
+
+                // Naval units
+                case UnitType.Battleship:
+                    unit.VisionRange = 17;
+                    break;
+                case UnitType.Cruiser:
+                    unit.VisionRange = 14;
+                    break;
+                case UnitType.Submarine:
+                    unit.VisionRange = 8;
+                    break;
+                case UnitType.NavalTransport:
+                    unit.VisionRange = 13;
+                    break;
+                case UnitType.Carrier:
+                    unit.VisionRange = 20;
+                    break;
+
+                default:
+                    unit.VisionRange = 10;
+                    break;
             }
         }
 
@@ -1050,6 +1316,10 @@ namespace WorldWarX.Views
                 // Update the UI
                 UpdateUnitInfo(transportUnit);
 
+                // Update fog of war as a unit was removed
+                UpdateVisibility();
+                UpdateFogOfWar();
+
                 MessageBox.Show($"{unitToLoad.Name} loaded into {transportUnit.Name}.");
             }
         }
@@ -1094,6 +1364,10 @@ namespace WorldWarX.Views
 
                 // Update the UI
                 UpdateUnitInfo(transportUnit);
+
+                // Update fog of war as a new unit was placed
+                UpdateVisibility();
+                UpdateFogOfWar();
 
                 MessageBox.Show($"{unloadedUnit.Name} unloaded from {transportUnit.Name}.");
             }
@@ -1266,5 +1540,345 @@ namespace WorldWarX.Views
         {
             return GetLoadableUnitsForTransport(transportUnit).Count > 0;
         }
+
+        #region Fog of War Implementation
+
+        // Update visibility for all players
+        private void UpdateVisibility()
+        {
+            if (!_fogOfWarEnabled) return;
+
+            // Reset visibility for all tiles
+            foreach (Player player in _gameMap.Players)
+            {
+                // Mark all currently visible tiles as previously seen
+                for (int x = 0; x < _gameMap.Width; x++)
+                {
+                    for (int y = 0; y < _gameMap.Height; y++)
+                    {
+                        if (_visibilityState[player.PlayerId][x, y] == VisibilityState.Visible)
+                        {
+                            _visibilityState[player.PlayerId][x, y] = VisibilityState.Previously;
+                        }
+                    }
+                }
+            }
+
+            // Calculate visibility from units
+            foreach (Player player in _gameMap.Players)
+            {
+                // Update visibility from units
+                foreach (Unit unit in player.Units)
+                {
+                    UpdateVisibilityFromUnit(unit, player);
+                }
+
+                // Update visibility from buildings
+                foreach (Tile property in player.Properties)
+                {
+                    UpdateVisibilityFromProperty(property, player);
+                }
+            }
+        }
+
+        // Update visibility from a unit
+        private void UpdateVisibilityFromUnit(Unit unit, Player player)
+        {
+            // Calculate the unit's effective vision range with terrain modifiers
+            TerrainType terrainType = _gameMap.Tiles[unit.X, unit.Y].TerrainType;
+            int terrainModifier = GetTerrainVisionModifier(terrainType, unit.MovementType);
+            int visionRange = Math.Max(1, unit.VisionRange + terrainModifier);
+
+            // Update tiles within vision range
+            for (int x = Math.Max(0, unit.X - visionRange); x <= Math.Min(_gameMap.Width - 1, unit.X + visionRange); x++)
+            {
+                for (int y = Math.Max(0, unit.Y - visionRange); y <= Math.Min(_gameMap.Height - 1, unit.Y + visionRange); y++)
+                {
+                    // Check if within range using Manhattan distance
+                    int distance = Math.Abs(x - unit.X) + Math.Abs(y - unit.Y);
+                    if (distance <= visionRange)
+                    {
+                        _visibilityState[player.PlayerId][x, y] = VisibilityState.Visible;
+                    }
+                }
+            }
+        }
+
+        // Update visibility from a property
+        private void UpdateVisibilityFromProperty(Tile property, Player player)
+        {
+            // Different properties provide different vision ranges
+            int visionRange;
+            switch (property.TerrainType)
+            {
+                case TerrainType.HQ:
+                    visionRange = 12;
+                    break;
+                case TerrainType.Factory:
+                    visionRange = 10;
+                    break;
+                case TerrainType.Airport:
+                    visionRange = 15;
+                    break;
+                case TerrainType.Seaport:
+                    visionRange = 12;
+                    break;
+                case TerrainType.City:
+                    visionRange = 8;
+                    break;
+                default:
+                    visionRange = 5;
+                    break;
+            }
+
+            // Update tiles within vision range
+            for (int x = Math.Max(0, property.X - visionRange); x <= Math.Min(_gameMap.Width - 1, property.X + visionRange); x++)
+            {
+                for (int y = Math.Max(0, property.Y - visionRange); y <= Math.Min(_gameMap.Height - 1, property.Y + visionRange); y++)
+                {
+                    // Check if within range using Manhattan distance
+                    int distance = Math.Abs(x - property.X) + Math.Abs(y - property.Y);
+                    if (distance <= visionRange)
+                    {
+                        _visibilityState[player.PlayerId][x, y] = VisibilityState.Visible;
+                    }
+                }
+            }
+        }
+
+        // Get vision modifier from terrain type for a specific movement type
+        private int GetTerrainVisionModifier(TerrainType terrainType, MovementType movementType)
+        {
+            // Different terrain types provide different vision modifiers based on unit type
+            switch (movementType)
+            {
+                case MovementType.Infantry:
+                    switch (terrainType)
+                    {
+                        case TerrainType.Mountain:
+                            return 4; // Infantry gets good vision bonus on mountains
+                        case TerrainType.Forest:
+                            return -2; // Reduced vision in forests
+                        case TerrainType.City:
+                        case TerrainType.Factory:
+                        case TerrainType.HQ:
+                            return 2; // Slight bonus in buildings
+                        case TerrainType.Sea:
+                            return -5; // Very poor vision on water
+                        default:
+                            return 0;
+                    }
+
+                case MovementType.Treaded:
+                case MovementType.Wheeled:
+                    switch (terrainType)
+                    {
+                        case TerrainType.Mountain:
+                            return -1; // Vehicles get reduced vision on mountains
+                        case TerrainType.Forest:
+                            return -3; // Poor vision in forests
+                        case TerrainType.Road:
+                        case TerrainType.Bridge:
+                            return 2; // Good vision on roads
+                        case TerrainType.Sea:
+                            return -8; // Cannot see well on water
+                        default:
+                            return 0;
+                    }
+
+                case MovementType.Air:
+                    switch (terrainType)
+                    {
+                        case TerrainType.Mountain:
+                            return -2; // Mountains can obscure vision from air
+                        case TerrainType.Airport:
+                            return 4; // Great vision from airports
+                        case TerrainType.Sea:
+                            return 3; // Clear vision over water
+                        default:
+                            return 0;
+                    }
+
+                case MovementType.Ship:
+                    switch (terrainType)
+                    {
+                        case TerrainType.Sea:
+                            return 5; // Excellent vision on open water
+                        case TerrainType.Seaport:
+                            return 4; // Good vision at seaports
+                        case TerrainType.Beach:
+                            return 2; // Decent vision on beaches
+                        default:
+                            return -5; // Poor vision of land
+                    }
+
+                case MovementType.Lander:
+                    switch (terrainType)
+                    {
+                        case TerrainType.Sea:
+                            return 3; // Good vision on water
+                        case TerrainType.Beach:
+                            return 4; // Best vision on beaches
+                        case TerrainType.Seaport:
+                            return 3; // Good vision at seaports
+                        default:
+                            return -3; // Poor vision of land
+                    }
+
+                default:
+                    return 0;
+            }
+        }
+
+        // Update the fog of war overlay on the UI
+        private void UpdateFogOfWar()
+        {
+            if (!_fogOfWarEnabled)
+            {
+                // If fog of war is disabled, make all tiles visible
+                for (int x = 0; x < _gameMap.Width; x++)
+                {
+                    for (int y = 0; y < _gameMap.Height; y++)
+                    {
+                        if (_fogRects[x, y] != null)
+                        {
+                            _fogRects[x, y].Opacity = 0; // Fully transparent
+                        }
+
+                        // Make sure all units are visible
+                        if (_unitImages[x, y] != null)
+                        {
+                            _unitImages[x, y].Visibility = Visibility.Visible;
+                        }
+                    }
+                }
+                return;
+            }
+
+            // Update fog of war display based on current player's visibility
+            for (int x = 0; x < _gameMap.Width; x++)
+            {
+                for (int y = 0; y < _gameMap.Height; y++)
+                {
+                    VisibilityState visibility = _visibilityState[_currentPlayer.PlayerId][x, y];
+
+                    switch (visibility)
+                    {
+                        case VisibilityState.Unseen:
+                            // Completely black for unseen tiles
+                            _fogRects[x, y].Fill = new SolidColorBrush(Colors.Black);
+                            _fogRects[x, y].Opacity = 1.0;
+                            break;
+
+                        case VisibilityState.Previously:
+                            // Semi-transparent dark overlay for previously seen tiles
+                            _fogRects[x, y].Fill = new SolidColorBrush(Colors.Black);
+                            _fogRects[x, y].Opacity = 0.7;
+                            break;
+
+                        case VisibilityState.Visible:
+                            // No fog for visible tiles
+                            _fogRects[x, y].Opacity = 0;
+                            break;
+                    }
+
+                    // Handle unit visibility
+                    if (_unitImages[x, y] != null)
+                    {
+                        Unit unit = _gameMap.Tiles[x, y].OccupyingUnit;
+
+                        // Only show units that are visible and either:
+                        // 1. Belong to the current player
+                        // 2. Are enemies but are in visible tiles
+                        if (unit != null)
+                        {
+                            if (unit.Owner == _currentPlayer || visibility == VisibilityState.Visible)
+                            {
+                                _unitImages[x, y].Visibility = Visibility.Visible;
+                            }
+                            else
+                            {
+                                _unitImages[x, y].Visibility = Visibility.Hidden;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Check if a tile is currently visible to the current player
+        private bool IsTileVisible(int x, int y)
+        {
+            if (!_fogOfWarEnabled)
+                return true;
+
+            if (x < 0 || x >= _gameMap.Width || y < 0 || y >= _gameMap.Height)
+                return false;
+
+            return _visibilityState[_currentPlayer.PlayerId][x, y] == VisibilityState.Visible;
+        }
+
+        // Check if a tile is hidden in fog (completely unseen)
+        private bool IsTileHiddenInFog(int x, int y)
+        {
+            if (!_fogOfWarEnabled)
+                return false;
+
+            if (x < 0 || x >= _gameMap.Width || y < 0 || y >= _gameMap.Height)
+                return true;
+
+            return _visibilityState[_currentPlayer.PlayerId][x, y] == VisibilityState.Unseen;
+        }
+
+        // Check if a tile is at least partially revealed (either visible or previously seen)
+        private bool IsTileRevealed(int x, int y)
+        {
+            if (!_fogOfWarEnabled)
+                return true;
+
+            if (x < 0 || x >= _gameMap.Width || y < 0 || y >= _gameMap.Height)
+                return false;
+
+            VisibilityState state = _visibilityState[_currentPlayer.PlayerId][x, y];
+            return state == VisibilityState.Visible || state == VisibilityState.Previously;
+        }
+
+        // Create a game with specific settings, including fog of war options
+        public void CreateNewGame(GameSettings settings)
+        {
+            // Initialize players
+            _humanPlayer = new Player(0) { Name = "Player", IsAI = false };
+            _humanPlayer.SetCountry(_playerCountry);
+
+            _aiPlayer = new Player(1) { Name = "Enemy", IsAI = true };
+            if (_opponentCountry != null)
+                _aiPlayer.SetCountry(_opponentCountry);
+
+            // Create map with settings
+            _gameMap = GameMap.CreateTestMap(_humanPlayer, _aiPlayer);
+
+            // Set fog of war enabled based on settings
+            _fogOfWarEnabled = settings.FogOfWarEnabled;
+
+            // Reset turn counter
+            _currentTurn = 1;
+
+            // Set current player to human
+            _currentPlayer = _humanPlayer;
+
+            // Initialize UI
+            InitializeGameUI();
+
+            // Add initial units
+            AddInitialUnits();
+
+            // Initialize fog of war visibility
+            InitializeFogOfWar();
+
+            // Update UI
+            UpdateGameInfo();
+            UpdateFogOfWar();
+        }
+        #endregion
     }
 }

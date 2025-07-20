@@ -15,6 +15,8 @@ namespace WorldWarX.Models
         public List<Player> Players { get; set; }
         public WeatherSystem WeatherSystem { get; private set; }
         public MapSeason Season { get; private set; }
+        public FogOfWarSystem FogOfWar { get; private set; }
+        public Player CurrentPlayer { get; set; }
         
         public GameMap(string name, int width, int height)
         {
@@ -61,6 +63,21 @@ namespace WorldWarX.Models
         {
             Season = season;
             WeatherSystem = new WeatherSystem(season, difficulty, weatherEffectsEnabled, seed);
+        }
+
+        // Initialize fog of war system
+        public void InitializeFogOfWar(bool fogOfWarEnabled, bool advancedFogOfWar = true)
+        {
+            FogOfWar = new FogOfWarSystem(this);
+            FogOfWar.Enabled = fogOfWarEnabled;
+            FogOfWar.UseAdvancedMode = advancedFogOfWar;
+        }
+
+        // Update fog of war visibility
+        public void UpdateVisibility()
+        {
+            if (FogOfWar != null)
+                FogOfWar.UpdateVisibility();
         }
         
         // Load a map from a file
@@ -113,6 +130,9 @@ namespace WorldWarX.Models
                 
                 // Initialize weather with default settings
                 map.InitializeWeather(MapSeason.Summer, GameDifficulty.Medium, true);
+                
+                // Initialize fog of war
+                map.InitializeFogOfWar(true);
                 
                 return map;
             }
@@ -215,6 +235,9 @@ namespace WorldWarX.Models
             // Initialize weather
             map.InitializeWeather(MapSeason.Summer, GameDifficulty.Medium, true);
             
+            // Initialize fog of war
+            map.InitializeFogOfWar(true);
+            
             return map;
         }
         
@@ -281,6 +304,16 @@ namespace WorldWarX.Models
             // Check if coordinates are valid
             if (x < 0 || x >= Width || y < 0 || y >= Height || visited[x, y])
                 return;
+
+            // Check fog of war if applicable - can't move to unseen tiles
+            if (FogOfWar != null && FogOfWar.Enabled && unit.Owner == CurrentPlayer)
+            {
+                VisibilityState visibility = FogOfWar.GetTileVisibility(x, y, unit.Owner);
+                if (visibility == VisibilityState.Unseen)
+                {
+                    return;
+                }
+            }
                 
             Tile tile = Tiles[x, y];
             

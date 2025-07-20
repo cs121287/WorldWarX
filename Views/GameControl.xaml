@@ -114,15 +114,28 @@
             </Grid.ColumnDefinitions>
 
             <!-- Game Map -->
-            <ScrollViewer Grid.Column="0" 
-                          HorizontalScrollBarVisibility="Auto" 
-                          VerticalScrollBarVisibility="Auto">
-                <Canvas x:Name="GameCanvas" 
-                        Background="#2D2D3A"
-                        ClipToBounds="True">
-                    <!-- Map tiles and units will be added here programmatically -->
-                </Canvas>
-            </ScrollViewer>
+            <Grid Grid.Column="0">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" 
+                            VerticalScrollBarVisibility="Auto">
+                    <Canvas x:Name="GameCanvas" 
+                            Background="#2D2D3A"
+                            ClipToBounds="True">
+                        <!-- Map tiles and units will be added here programmatically -->
+                    </Canvas>
+                </ScrollViewer>
+
+                <!-- Vision Range Info Display -->
+                <TextBlock x:Name="VisionInfoText" 
+                           Text="Vision Range: 15 base + 2 terrain = 17" 
+                           Foreground="White" 
+                           Background="#4D4D65" 
+                           FontSize="14" 
+                           Padding="10,5"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Top"
+                           Margin="0,10,0,0"
+                           Visibility="Collapsed"/>
+            </Grid>
 
             <!-- Info Panel -->
             <Border Grid.Column="1" 
@@ -131,6 +144,14 @@
                     BorderThickness="1,0,0,0" 
                     Width="220">
                 <StackPanel Margin="10">
+                    <!-- Fog of War Toggle -->
+                    <CheckBox x:Name="FogOfWarCheckbox" 
+                              Content="Fog of War" 
+                              Foreground="White" 
+                              IsChecked="True" 
+                              Margin="0,0,0,10"
+                              Click="FogOfWarCheckbox_Click"/>
+
                     <TextBlock Text="SELECTED UNIT" 
                                Foreground="#F73859" 
                                FontSize="16" 
@@ -145,6 +166,7 @@
                             Visibility="Collapsed">
                         <Grid>
                             <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
@@ -167,8 +189,16 @@
                                            VerticalAlignment="Center"/>
                             </StackPanel>
 
+                            <!-- Unit Type -->
+                            <TextBlock x:Name="UnitTypeText" 
+                                       Grid.Row="1"
+                                       Text="Type: Tank (Treaded)" 
+                                       Foreground="#BBBBBB" 
+                                       FontSize="12"
+                                       Margin="0,5,0,5"/>
+
                             <!-- Unit Stats -->
-                            <UniformGrid Grid.Row="1" Columns="2" Margin="0,10,0,0">
+                            <UniformGrid Grid.Row="2" Columns="2" Margin="0,5,0,0">
                                 <StackPanel Margin="0,0,5,5">
                                     <TextBlock Text="Health:" 
                                                Foreground="#61DAFB" 
@@ -213,7 +243,7 @@
                                                FontWeight="SemiBold"/>
                                 </StackPanel>
 
-                                <StackPanel Margin="0,5,5,0" Grid.ColumnSpan="2">
+                                <StackPanel Margin="0,5,5,0">
                                     <TextBlock Text="Fuel:" 
                                               Foreground="#61DAFB" 
                                               FontSize="12"/>
@@ -223,11 +253,22 @@
                                               FontSize="14" 
                                               FontWeight="SemiBold"/>
                                 </StackPanel>
+
+                                <StackPanel Margin="5,5,0,0">
+                                    <TextBlock Text="Vision:" 
+                                               Foreground="#61DAFB" 
+                                               FontSize="12"/>
+                                    <TextBlock x:Name="UnitVisionText" 
+                                               Text="15" 
+                                               Foreground="White" 
+                                               FontSize="14" 
+                                               FontWeight="SemiBold"/>
+                                </StackPanel>
                             </UniformGrid>
 
                             <!-- Transported Units Panel (only visible for transports) -->
                             <Border x:Name="TransportedUnitsPanel" 
-                                   Grid.Row="2"
+                                   Grid.Row="3"
                                    Background="#222233" 
                                    Padding="5" 
                                    CornerRadius="3" 
@@ -246,7 +287,7 @@
                             </Border>
 
                             <!-- Unit Status -->
-                            <StackPanel Grid.Row="3" Margin="0,10,0,0">
+                            <StackPanel Grid.Row="4" Margin="0,10,0,0">
                                 <TextBlock Text="Status:" 
                                            Foreground="#61DAFB" 
                                            FontSize="12"/>
@@ -258,7 +299,7 @@
                             </StackPanel>
 
                             <!-- Unit Actions -->
-                            <StackPanel Grid.Row="4" Margin="0,10,0,0">
+                            <StackPanel Grid.Row="5" Margin="0,10,0,0">
                                 <Button x:Name="BtnAttack" 
                                         Content="Attack" 
                                         Height="30" 
@@ -298,6 +339,14 @@
                                        Foreground="White" 
                                        Margin="0,0,0,5"
                                        Click="BtnResupply_Click"/>
+
+                                <Button x:Name="BtnShowVision" 
+                                       Content="Show Vision Range" 
+                                       Height="30" 
+                                       Background="#4D4D65" 
+                                       Foreground="White" 
+                                       Margin="0,0,0,5"
+                                       Click="BtnShowVision_Click"/>
 
                                 <Button x:Name="BtnWait" 
                                         Content="Wait" 

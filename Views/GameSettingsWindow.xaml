@@ -11,7 +11,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        
+
         <!-- Header -->
         <TextBlock Text="GAME SETTINGS" 
                    Grid.Row="0"
@@ -20,14 +20,14 @@
                    FontWeight="Bold" 
                    HorizontalAlignment="Center" 
                    Margin="0,0,0,20"/>
-        
+
         <!-- Settings Content -->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            
+
             <!-- Left Column -->
             <StackPanel Grid.Column="0" Margin="0,0,10,0">
                 <!-- Game Mode -->
@@ -36,20 +36,20 @@
                            FontSize="16" 
                            FontWeight="Bold" 
                            Margin="0,0,0,5"/>
-                           
+
                 <ComboBox x:Name="GameModeComboBox" 
                           Margin="0,0,0,15">
                     <ComboBoxItem Content="Campaign"/>
                     <ComboBoxItem Content="Quick Battle" IsSelected="True"/>
                 </ComboBox>
-                
+
                 <!-- Difficulty -->
                 <TextBlock Text="DIFFICULTY" 
                            Foreground="#61DAFB" 
                            FontSize="16" 
                            FontWeight="Bold" 
                            Margin="0,0,0,5"/>
-                           
+
                 <ComboBox x:Name="DifficultyComboBox" 
                           Margin="0,0,0,15">
                     <ComboBoxItem Content="Easy"/>
@@ -57,14 +57,14 @@
                     <ComboBoxItem Content="Hard"/>
                     <ComboBoxItem Content="Expert"/>
                 </ComboBox>
-                
+
                 <!-- Map Size -->
                 <TextBlock Text="MAP SIZE" 
                            Foreground="#61DAFB" 
                            FontSize="16" 
                            FontWeight="Bold" 
                            Margin="0,0,0,5"/>
-                           
+
                 <ComboBox x:Name="MapSizeComboBox" 
                           Margin="0,0,0,15">
                     <ComboBoxItem Content="Small (8x8)"/>
@@ -73,7 +73,7 @@
                     <ComboBoxItem Content="Huge (20x16)"/>
                 </ComboBox>
             </StackPanel>
-            
+
             <!-- Right Column -->
             <StackPanel Grid.Column="1" Margin="10,0,0,0">
                 <!-- Map Season -->
@@ -82,7 +82,7 @@
                            FontSize="16" 
                            FontWeight="Bold" 
                            Margin="0,0,0,5"/>
-                           
+
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
                     <RadioButton x:Name="SummerRadioButton" 
                                  Content="Summer" 
@@ -93,33 +93,40 @@
                                  Content="Winter" 
                                  Foreground="White"/>
                 </StackPanel>
-                
+
                 <!-- Weather Effects -->
                 <TextBlock Text="WEATHER EFFECTS" 
                            Foreground="#61DAFB" 
                            FontSize="16" 
                            FontWeight="Bold" 
                            Margin="0,0,0,5"/>
-                           
+
                 <CheckBox x:Name="WeatherEffectsCheckBox" 
                           Content="Enable Weather Effects" 
                           Foreground="White" 
                           IsChecked="True" 
                           Margin="0,0,0,10"/>
-                          
+
+                <!-- Fog of War Option -->
+                <CheckBox x:Name="FogOfWarCheckBox" 
+                          Content="Enable Fog of War" 
+                          Foreground="White" 
+                          IsChecked="True" 
+                          Margin="0,0,0,10"/>
+
                 <TextBlock Text="Weather effects impact movement, combat accuracy, and visibility."
                            Foreground="#AAAAAA"
                            FontSize="12"
                            TextWrapping="Wrap"
                            Margin="0,0,0,15"/>
-                           
+
                 <!-- Starting Funds -->
                 <TextBlock Text="STARTING FUNDS" 
                            Foreground="#61DAFB" 
                            FontSize="16" 
                            FontWeight="Bold" 
                            Margin="0,0,0,5"/>
-                           
+
                 <ComboBox x:Name="FundsComboBox" 
                           Margin="0,0,0,15">
                     <ComboBoxItem Content="Standard (5000)"/>
@@ -128,7 +135,7 @@
                 </ComboBox>
             </StackPanel>
         </Grid>
-        
+
         <!-- Buttons -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
             <Button x:Name="BtnStart" 
@@ -141,7 +148,7 @@
                     FontWeight="Bold" 
                     Margin="0,0,20,0" 
                     Click="BtnStart_Click"/>
-                    
+
             <Button x:Name="BtnCancel" 
                     Content="CANCEL" 
                     Width="150" 
