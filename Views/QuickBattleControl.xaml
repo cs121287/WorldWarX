@@ -6,28 +6,293 @@
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="900">
     <Grid>
-        <StackPanel VerticalAlignment="Center"
-                    HorizontalAlignment="Center">
-            <TextBlock Text="QUICK BATTLE"
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" 
+                Background="#0F0F1A" 
+                Padding="15">
+            <TextBlock Text="QUICK BATTLE" 
                        FontSize="36" 
-                       FontWeight="Bold"
-                       Foreground="#61DAFB"
+                       FontWeight="Bold" 
+                       Foreground="#61DAFB" 
                        HorizontalAlignment="Center"/>
-                       
-            <TextBlock Text="Configure your battle with the settings below"
-                       FontSize="18" 
-                       Foreground="White" 
-                       HorizontalAlignment="Center"
-                       Margin="0,20,0,40"/>
-            
-            <Button x:Name="BtnStartBattle" 
-                    Content="START BATTLE" 
+        </Border>
+
+        <!-- Main Content Area -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Left Panel: Map Selection -->
+            <Border Grid.Column="0" 
+                    Background="#0F0F1A" 
+                    Margin="15" 
+                    CornerRadius="5"
+                    BorderBrush="#61DAFB"
+                    BorderThickness="1">
+                <DockPanel>
+                    <TextBlock Text="SELECT MAP" 
+                               DockPanel.Dock="Top" 
+                               Foreground="#F73859" 
+                               FontSize="24" 
+                               FontWeight="Bold" 
+                               Margin="10"
+                               HorizontalAlignment="Center"/>
+
+                    <Image x:Name="MapPreviewImage"
+                           DockPanel.Dock="Top"
+                           Height="150"
+                           Margin="20,0,20,10"
+                           Stretch="Uniform"/>
+
+                    <TextBlock x:Name="MapNameText"
+                               DockPanel.Dock="Top"
+                               Text="Test Map"
+                               Foreground="White"
+                               FontSize="20"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,5"/>
+
+                    <TextBlock x:Name="MapDescriptionText"
+                               DockPanel.Dock="Top"
+                               Text="A small balanced map for testing"
+                               Foreground="#CCCCCC"
+                               FontSize="14"
+                               TextWrapping="Wrap"
+                               HorizontalAlignment="Center"
+                               Margin="20,0,20,15"/>
+
+                    <ListView x:Name="MapListView" 
+                              Background="Transparent" 
+                              BorderThickness="0" 
+                              Margin="10">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="#2D2D3A" 
+                                        Margin="2" 
+                                        Padding="10" 
+                                        CornerRadius="5" 
+                                        Width="350">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Border Width="50" 
+                                                Height="50" 
+                                                Grid.Column="0" 
+                                                Margin="0,0,10,0">
+                                            <Image Source="{Binding PreviewImagePath}" 
+                                                   Stretch="UniformToFill"/>
+                                        </Border>
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Text="{Binding Name}" 
+                                                       Foreground="White" 
+                                                       FontSize="16" 
+                                                       FontWeight="Bold"/>
+                                            <TextBlock Text="{Binding Description}" 
+                                                       Foreground="#AAAAAA" 
+                                                       FontSize="12" 
+                                                       TextWrapping="Wrap"/>
+                                            <TextBlock Text="{Binding Width, StringFormat={}Size: {0}x}" 
+                                                       Foreground="#61DAFB" 
+                                                       FontSize="11"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </DockPanel>
+            </Border>
+
+            <!-- Right Panel: Country Selection & Battle Options -->
+            <Border Grid.Column="1" 
+                    Background="#0F0F1A" 
+                    Margin="15" 
+                    CornerRadius="5"
+                    BorderBrush="#61DAFB"
+                    BorderThickness="1">
+                <DockPanel>
+                    <TextBlock Text="BATTLE OPTIONS" 
+                               DockPanel.Dock="Top" 
+                               Foreground="#F73859" 
+                               FontSize="24" 
+                               FontWeight="Bold" 
+                               Margin="10"
+                               HorizontalAlignment="Center"/>
+
+                    <Grid DockPanel.Dock="Top" Margin="15,0,15,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Player Country -->
+                        <StackPanel Grid.Column="0" Margin="0,0,5,0">
+                            <TextBlock Text="YOUR COUNTRY" 
+                                       Foreground="#61DAFB" 
+                                       FontSize="16" 
+                                       FontWeight="Bold" 
+                                       Margin="0,0,0,5"/>
+
+                            <ComboBox x:Name="PlayerCountryComboBox"
+                                      Margin="0,0,0,15">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Border Width="20" 
+                                                    Height="20" 
+                                                    BorderThickness="1" 
+                                                    BorderBrush="White" 
+                                                    Margin="0,0,5,0">
+                                                <Border.Background>
+                                                    <SolidColorBrush Color="{Binding PrimaryColor}"/>
+                                                </Border.Background>
+                                            </Border>
+                                            <TextBlock Text="{Binding Name}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <!-- Opponent Country -->
+                        <StackPanel Grid.Column="1" Margin="5,0,0,0">
+                            <TextBlock Text="OPPONENT" 
+                                       Foreground="#61DAFB" 
+                                       FontSize="16" 
+                                       FontWeight="Bold" 
+                                       Margin="0,0,0,5"/>
+
+                            <ComboBox x:Name="OpponentCountryComboBox"
+                                      Margin="0,0,0,15">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Border Width="20" 
+                                                    Height="20" 
+                                                    BorderThickness="1" 
+                                                    BorderBrush="White" 
+                                                    Margin="0,0,5,0">
+                                                <Border.Background>
+                                                    <SolidColorBrush Color="{Binding PrimaryColor}"/>
+                                                </Border.Background>
+                                            </Border>
+                                            <TextBlock Text="{Binding Name}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Additional Options -->
+                    <StackPanel DockPanel.Dock="Top" Margin="15,0">
+                        <TextBlock Text="DIFFICULTY" 
+                                   Foreground="#61DAFB" 
+                                   FontSize="16" 
+                                   FontWeight="Bold" 
+                                   Margin="0,0,0,5"/>
+
+                        <ComboBox x:Name="DifficultyComboBox" 
+                                  Margin="0,0,0,15">
+                            <ComboBoxItem Content="Easy"/>
+                            <ComboBoxItem Content="Medium" IsSelected="True"/>
+                            <ComboBoxItem Content="Hard"/>
+                            <ComboBoxItem Content="Expert"/>
+                        </ComboBox>
+
+                        <!-- Map Season -->
+                        <TextBlock Text="MAP SEASON" 
+                                   Foreground="#61DAFB" 
+                                   FontSize="16" 
+                                   FontWeight="Bold" 
+                                   Margin="0,0,0,5"/>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                            <RadioButton x:Name="SummerRadioButton" 
+                                         Content="Summer" 
+                                         Foreground="White" 
+                                         Margin="0,0,15,0" 
+                                         IsChecked="True"/>
+                            <RadioButton x:Name="WinterRadioButton" 
+                                         Content="Winter" 
+                                         Foreground="White"/>
+                        </StackPanel>
+
+                        <!-- Weather Effects -->
+                        <TextBlock Text="WEATHER EFFECTS" 
+                                   Foreground="#61DAFB" 
+                                   FontSize="16" 
+                                   FontWeight="Bold" 
+                                   Margin="0,0,0,5"/>
+
+                        <CheckBox x:Name="WeatherEffectsCheckBox" 
+                                  Content="Enable Weather Effects" 
+                                  Foreground="White" 
+                                  IsChecked="True" 
+                                  Margin="0,0,0,5"/>
+
+                        <TextBlock Text="Weather effects impact movement, combat accuracy, and visibility."
+                                   Foreground="#AAAAAA"
+                                   FontSize="12"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,15"/>
+
+                        <!-- Starting Funds -->
+                        <TextBlock Text="STARTING FUNDS" 
+                                   Foreground="#61DAFB" 
+                                   FontSize="16" 
+                                   FontWeight="Bold" 
+                                   Margin="0,0,0,5"/>
+
+                        <ComboBox x:Name="FundsComboBox" 
+                                  Margin="0,0,0,15">
+                            <ComboBoxItem Content="Standard (5000)"/>
+                            <ComboBoxItem Content="Low (3000)"/>
+                            <ComboBoxItem Content="High (10000)" IsSelected="True"/>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <!-- Battle button -->
+                    <Button x:Name="BtnStartBattle" 
+                            Content="START BATTLE" 
+                            DockPanel.Dock="Bottom"
+                            Height="50"
+                            Margin="15"
+                            Background="#F73859"
+                            Foreground="White"
+                            FontSize="20"
+                            FontWeight="Bold"
+                            Click="BtnStartBattle_Click"/>
+                </DockPanel>
+            </Border>
+        </Grid>
+
+        <!-- Bottom Panel: Navigation -->
+        <StackPanel Grid.Row="2" 
+                    Background="#0F0F1A" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Center"
+                    Margin="0,0,0,15">
+            <Button x:Name="BtnBack" 
+                    Content="BACK TO MAIN MENU" 
                     Width="250"
-                    Height="50"
-                    Background="#F73859"
+                    Height="40"
+                    Background="#4D4D65"
                     Foreground="White"
-                    FontSize="18"
+                    FontSize="16"
                     FontWeight="Bold"
-                    Margin="0,0,0,20"
-                    Click="BtnStartBattle_Click"/>
-                       
+                    Click="BtnBack_Click"/>
+        </StackPanel>
+    </Grid>
+</UserControl>
