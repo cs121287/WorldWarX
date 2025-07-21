@@ -34,6 +34,10 @@ namespace WorldWarX.Models
         public GameMap(string name, int width, int height)
         {
             Name = name;
+            Description = ""; // Default value to avoid CS8618
+            PreviewImagePath = ""; // Default value to avoid CS8618
+            Author = ""; // Default value to avoid CS8618
+
             Width = width;
             Height = height;
             Tiles = new Tile[width, height];
@@ -41,6 +45,13 @@ namespace WorldWarX.Models
             Season = MapSeason.Summer; // Default to summer
 
             Size = DetermineMapSizeFromDimensions(width, height);
+
+            // WeatherSystem and FogOfWar are initialized by InitializeWeather and InitializeFogOfWar
+            WeatherSystem = null!;
+            FogOfWar = null!;
+
+            // CurrentPlayer may be set later by game logic
+            CurrentPlayer = null!;
 
             CreatedDate = DateTime.UtcNow;
             ModifiedDate = DateTime.UtcNow;
@@ -59,7 +70,7 @@ namespace WorldWarX.Models
         }
 
         // Get tile at specific coordinates
-        public Tile GetTile(int x, int y)
+        public Tile? GetTile(int x, int y)
         {
             if (x >= 0 && x < Width && y >= 0 && y < Height)
                 return Tiles[x, y];
@@ -195,7 +206,7 @@ namespace WorldWarX.Models
         }
 
         // Load a map from a file
-        public static GameMap LoadFromFile(string filePath)
+        public static GameMap? LoadFromFile(string filePath)
         {
             try
             {

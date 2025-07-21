@@ -23,11 +23,17 @@ namespace WorldWarX
 
         public Country()
         {
+            Name = "";
+            Description = "";
+            FlagImagePath = "";
+            PowerName = "";
+            PowerDescription = "";
             UnitBonus = new Dictionary<UnitType, float>();
             TerrainBonus = new Dictionary<TerrainType, float>();
         }
     }
 
+    // ...enums unchanged...
     public enum GameMode
     {
         Campaign,

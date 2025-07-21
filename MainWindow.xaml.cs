@@ -7,13 +7,13 @@ namespace WorldWarX
 {
     public partial class MainWindow : Window
     {
-        // Create instances of our screens
-        private MainMenuControl _mainMenuScreen;
-        private CountrySelectionControl _countrySelectionScreen;
-        private GameControl _gameScreen;
-        private QuickBattleControl _quickBattleScreen;
-        private OptionsControl _optionsScreen;
-        private MapEditorWindow _mapEditorScreen; // Added for map editor
+        // Create instances of our screens (nullable for lazy initialization and to avoid CS8618)
+        private MainMenuControl? _mainMenuScreen;
+        private CountrySelectionControl? _countrySelectionScreen;
+        private GameControl? _gameScreen;
+        private QuickBattleControl? _quickBattleScreen;
+        private OptionsControl? _optionsScreen;
+        private MapEditorWindow? _mapEditorScreen; // Map editor is lazy-initialized
 
         public MainWindow()
         {
@@ -26,7 +26,7 @@ namespace WorldWarX
 
         private void InitializeScreens()
         {
-            // Initialize all screens
+            // Initialize screens
             _mainMenuScreen = new MainMenuControl();
             _countrySelectionScreen = new CountrySelectionControl();
             _quickBattleScreen = new QuickBattleControl();
@@ -54,22 +54,22 @@ namespace WorldWarX
         // Navigation methods
         public void NavigateToMainMenu()
         {
-            MainContentControl.Content = _mainMenuScreen;
+            MainContentControl.Content = _mainMenuScreen!;
         }
 
         public void NavigateToCountrySelection()
         {
-            MainContentControl.Content = _countrySelectionScreen;
+            MainContentControl.Content = _countrySelectionScreen!;
         }
 
         public void NavigateToQuickBattle()
         {
-            MainContentControl.Content = _quickBattleScreen;
+            MainContentControl.Content = _quickBattleScreen!;
         }
 
         public void NavigateToOptions()
         {
-            MainContentControl.Content = _optionsScreen;
+            MainContentControl.Content = _optionsScreen!;
         }
 
         public void NavigateToMapEditor()
@@ -79,39 +79,31 @@ namespace WorldWarX
                 _mapEditorScreen = new MapEditorWindow();
                 _mapEditorScreen.Closed += (s, e) => NavigateToMainMenu();
             }
-            MainContentControl.Content = _mapEditorScreen;
+            MainContentControl.Content = _mapEditorScreen!;
         }
 
         private void StartGame(Country selectedCountry)
         {
-            if (_gameScreen != null)
-            {
-                // Clear any previous game
-                _gameScreen = null;
-            }
+            _gameScreen = null;
 
             // Create new game screen with campaign mode
             _gameScreen = new GameControl(GameMode.Campaign, selectedCountry);
             _gameScreen.BackToMainMenuRequested += (s, e) => NavigateToMainMenu();
 
             // Navigate to game screen
-            MainContentControl.Content = _gameScreen;
+            MainContentControl.Content = _gameScreen!;
         }
 
         private void StartQuickBattle(Map map, Country playerCountry, Country opponentCountry)
         {
-            if (_gameScreen != null)
-            {
-                // Clear any previous game
-                _gameScreen = null;
-            }
+            _gameScreen = null;
 
             // Create new game screen with quick battle mode
             _gameScreen = new GameControl(GameMode.QuickBattle, playerCountry, opponentCountry, map);
             _gameScreen.BackToMainMenuRequested += (s, e) => NavigateToMainMenu();
 
             // Navigate to game screen
-            MainContentControl.Content = _gameScreen;
+            MainContentControl.Content = _gameScreen!;
         }
     }
 }

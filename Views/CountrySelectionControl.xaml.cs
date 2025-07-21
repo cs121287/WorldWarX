@@ -6,25 +6,20 @@ using System.Windows.Media;
 
 namespace WorldWarX.Views
 {
-    public class CountrySelectedEventArgs : EventArgs
+    public class CountrySelectedEventArgs(Country country) : EventArgs
     {
-        public Country SelectedCountry { get; set; }
-        
-        public CountrySelectedEventArgs(Country country)
-        {
-            SelectedCountry = country;
-        }
+        public Country? SelectedCountry { get; set; } = country;
     }
 
     public partial class CountrySelectionControl : UserControl
     {
-        private List<Country> _availableCountries;
-        private Country _selectedCountry;
+        private List<Country>? _availableCountries;
+        private Country? _selectedCountry;
         
         // Events for navigation
-        public event EventHandler BackRequested;
+        public event EventHandler? BackRequested;
         public event EventHandler<CountrySelectedEventArgs> CountrySelected;
-        
+
         public CountrySelectionControl()
         {
             InitializeComponent();
