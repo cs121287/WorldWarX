@@ -12,7 +12,7 @@ namespace WorldWarX.Views
         private Tile _factory;
         private Dictionary<UnitType, int> _unitCosts = new Dictionary<UnitType, int>();
 
-        public Unit ProducedUnit { get; private set; }
+        public Unit? ProducedUnit { get; private set; }
 
         public UnitProductionWindow(Player player, Tile factory)
         {
@@ -200,10 +200,10 @@ namespace WorldWarX.Views
     public class UnitListItem
     {
         public UnitType UnitType { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public int Cost { get; set; }
-        public System.Windows.Media.ImageSource Image { get; set; }
+        public System.Windows.Media.ImageSource? Image { get; set; }
         public bool CanAfford { get; set; }
-        public string FuelInfo { get; set; }
+        public string? FuelInfo { get; set; }
     }
 }

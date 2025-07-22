@@ -13,14 +13,14 @@ namespace WorldWarX.Views
     public partial class GameControl : UserControl
     {
         // Core game data
-        private GameMode _gameMode;
+        private readonly GameMode _gameMode;
         private Country _playerCountry;
         private Country? _opponentCountry;
-        private Map? _map;
-        private GameMap _gameMap;
-        private Player _currentPlayer;
-        private Player _humanPlayer;
-        private Player _aiPlayer;
+        private readonly Map? _map;
+        private GameMap? _gameMap;
+        private Player? _currentPlayer;
+        private Player? _humanPlayer;
+        private Player? _aiPlayer;
         private int _currentTurn = 1;
 
         // UI elements
@@ -108,6 +108,8 @@ namespace WorldWarX.Views
         private void InitializeGameUI()
         {
             // Clear canvas
+            if (_gameMap == null) return;
+
             GameCanvas.Children.Clear();
 
             // Set canvas size
@@ -204,19 +206,28 @@ namespace WorldWarX.Views
         private void AddInitialUnits()
         {
             // Add some units for the human player
-            AddUnit(new Unit(UnitType.Infantry, _humanPlayer!) { X = 1, Y = 2, VisionRange = 10 });
-            AddUnit(new Unit(UnitType.Tank, _humanPlayer!) { X = 2, Y = 1, VisionRange = 15 });
-            AddUnit(new Unit(UnitType.TransportVehicle, _humanPlayer!) { X = 1, Y = 4, VisionRange = 15 });
+            if (_humanPlayer != null)
+            {
+                AddUnit(new Unit(UnitType.Infantry, _humanPlayer) { X = 1, Y = 2, VisionRange = 10 });
+                AddUnit(new Unit(UnitType.Tank, _humanPlayer) { X = 2, Y = 1, VisionRange = 15 });
+                AddUnit(new Unit(UnitType.TransportVehicle, _humanPlayer) { X = 1, Y = 4, VisionRange = 15 });
+            }
 
             // Add some units for the AI player
-            AddUnit(new Unit(UnitType.Infantry, _aiPlayer!) { X = 10, Y = 2, VisionRange = 10 });
-            AddUnit(new Unit(UnitType.Tank, _aiPlayer!) { X = 9, Y = 1, VisionRange = 15 });
+            if (_aiPlayer != null)
+            {
+                AddUnit(new Unit(UnitType.Infantry, _aiPlayer) { X = 10, Y = 2, VisionRange = 10 });
+                AddUnit(new Unit(UnitType.Tank, _aiPlayer) { X = 9, Y = 1, VisionRange = 15 });
+            }
         }
 
         private void AddUnit(Unit unit)
         {
+            if (_gameMap == null) return;
+            if (unit.Owner == null) return;
+
             // Add unit to player's unit list
-            unit.Owner!.AddUnit(unit);
+            unit.Owner.AddUnit(unit);
 
             // Place unit on tile
             _gameMap.Tiles[unit.X, unit.Y].OccupyingUnit = unit;
@@ -239,6 +250,8 @@ namespace WorldWarX.Views
 
         private void InitializeFogOfWar()
         {
+            if (_gameMap == null) return;
+
             // Create visibility states for each player
             _visibilityState = new Dictionary<int, VisibilityState[,]>();
             foreach (Player player in _gameMap.Players)
@@ -261,20 +274,24 @@ namespace WorldWarX.Views
 
         private void UpdateGameInfo()
         {
+            if (_playerCountry == null || _humanPlayer == null || _currentPlayer == null) return;
+
             // Update player info
-            PlayerNameText.Text = $"Player: {_playerCountry!.Name}";
-            FundsText.Text = $"{_humanPlayer!.Funds}G";
-            PowerMeterBar.Value = _humanPlayer!.PowerMeter;
+            PlayerNameText.Text = $"Player: {_playerCountry.Name}";
+            FundsText.Text = $"{_humanPlayer.Funds}G";
+            PowerMeterBar.Value = _humanPlayer.PowerMeter;
 
             // Update turn info
-            TurnInfoText.Text = $"Turn {_currentTurn} - {_currentPlayer!.Name}'s Turn";
+            TurnInfoText.Text = $"Turn {_currentTurn} - {_currentPlayer.Name}'s Turn";
 
             // Enable/disable power button
-            BtnUsePower.IsEnabled = _currentPlayer == _humanPlayer && _humanPlayer!.PowerMeter >= 100 && !_humanPlayer!.IsPowerActive;
+            BtnUsePower.IsEnabled = _currentPlayer == _humanPlayer && _humanPlayer.PowerMeter >= 100 && !_humanPlayer.IsPowerActive;
         }
 
         private void TileClicked(int x, int y)
         {
+            if (_gameMap == null) return;
+
             // Check if tile is visible in fog of war
             if (_fogOfWarEnabled && IsTileHiddenInFog(x, y))
             {
@@ -310,7 +327,7 @@ namespace WorldWarX.Views
             Unit? unitOnTile = clickedTile.OccupyingUnit;
 
             // Only allow selection of current player's units
-            if (unitOnTile != null && unitOnTile.Owner == _currentPlayer && !unitOnTile.HasMoved)
+            if (unitOnTile != null && _currentPlayer != null && unitOnTile.Owner == _currentPlayer && !unitOnTile.HasMoved)
             {
                 SelectUnit(unitOnTile);
             }
@@ -323,6 +340,8 @@ namespace WorldWarX.Views
 
         private void SelectUnit(Unit unit)
         {
+            if (_gameMap == null) return;
+
             // Clear any previous selection
             ClearSelection();
 
@@ -346,7 +365,8 @@ namespace WorldWarX.Views
 
             // Enable capture button if unit is infantry on capturable tile
             bool canCapture = unit.UnitType == UnitType.Infantry &&
-                             _selectedTile!.Capturable &&
+                             _selectedTile != null &&
+                             _selectedTile.Capturable &&
                              (_selectedTile.Owner == null || _selectedTile.Owner != unit.Owner);
             BtnCapture.IsEnabled = canCapture;
 
@@ -366,6 +386,8 @@ namespace WorldWarX.Views
 
         private void ShowMovementRange(Unit unit)
         {
+            if (_gameMap == null) return;
+
             // Calculate movement range
             _movementRange = _gameMap.CalculateMovementRange(unit, unit.X, unit.Y, unit.MovementRange);
 
@@ -391,6 +413,7 @@ namespace WorldWarX.Views
 
         private void ShowVisionRange(Unit unit)
         {
+            if (_gameMap == null) return;
             if (unit == null) return;
 
             // Clear previous highlights
@@ -432,6 +455,8 @@ namespace WorldWarX.Views
 
         private bool CheckForTargetsInRange(Unit unit)
         {
+            if (_gameMap == null) return false;
+
             // Calculate attack range from current position
             _attackRange = new List<Tile>();
 
@@ -452,6 +477,7 @@ namespace WorldWarX.Views
 
                         // Check if there's an enemy unit on this tile and it's visible
                         if (tile.OccupyingUnit != null &&
+                            unit.Owner != null &&
                             tile.OccupyingUnit.Owner != unit.Owner &&
                             (!_fogOfWarEnabled || IsTileVisible(x, y)))
                             return true;
@@ -464,6 +490,8 @@ namespace WorldWarX.Views
 
         private void MoveUnit(Unit unit, int newX, int newY)
         {
+            if (_gameMap == null) return;
+
             // Don't move if destination is the same as current position
             if (unit.X == newX && unit.Y == newY)
                 return;
@@ -482,7 +510,7 @@ namespace WorldWarX.Views
             if (destTile.OccupyingUnit != null)
             {
                 // Can't move onto enemy units
-                if (destTile.OccupyingUnit.Owner != unit.Owner)
+                if (unit.Owner != null && destTile.OccupyingUnit.Owner != unit.Owner)
                     return;
             }
 
@@ -503,11 +531,15 @@ namespace WorldWarX.Views
             unit.Y = newY;
 
             // Update UI
+            var previousUnitImage = _unitImages[oldX, oldY];
             _unitImages[oldX, oldY] = null;
-            _unitImages[newX, newY] = _unitImages[oldX, oldY];
+            _unitImages[newX, newY] = previousUnitImage;
 
-            Canvas.SetLeft(_unitImages[newX, newY]!, newX * TILE_SIZE);
-            Canvas.SetTop(_unitImages[newX, newY]!, newY * TILE_SIZE);
+            if (_unitImages[newX, newY] != null)
+            {
+                Canvas.SetLeft(_unitImages[newX, newY], newX * TILE_SIZE);
+                Canvas.SetTop(_unitImages[newX, newY], newY * TILE_SIZE);
+            }
 
             // Mark unit as moved
             unit.HasMoved = true;
@@ -543,15 +575,17 @@ namespace WorldWarX.Views
             UpdateFogOfWar();
 
             // Add power charge for movement
-            unit.Owner!.AddPowerCharge(1);
+            unit.Owner?.AddPowerCharge(1);
             UpdateGameInfo();
         }
 
         private void AttackTile(Unit attacker, Tile targetTile)
         {
+            if (_gameMap == null) return;
+
             // Check if there's a unit to attack
             Unit? defender = targetTile.OccupyingUnit;
-            if (defender == null || defender.Owner == attacker.Owner)
+            if (defender == null || attacker.Owner == null || defender.Owner == attacker.Owner)
                 return;
 
             // Get the attacker's tile for terrain defense calculation
@@ -590,7 +624,7 @@ namespace WorldWarX.Views
                         RemoveUnit(attacker);
 
                         // Add power charge for destroying an enemy
-                        defender.Owner!.AddPowerCharge(5);
+                        defender.Owner?.AddPowerCharge(5);
 
                         // Check for victory condition
                         CheckVictoryCondition();
@@ -612,7 +646,7 @@ namespace WorldWarX.Views
                 RemoveUnit(defender);
 
                 // Add power charge for destroying an enemy
-                attacker.Owner!.AddPowerCharge(5);
+                attacker.Owner?.AddPowerCharge(5);
 
                 // Check for victory condition
                 CheckVictoryCondition();
@@ -630,11 +664,13 @@ namespace WorldWarX.Views
 
         private void RemoveUnit(Unit unit)
         {
+            if (_gameMap == null) return;
+
             // Remove unit from map
             _gameMap.Tiles[unit.X, unit.Y].OccupyingUnit = null;
 
             // Remove unit from player's list
-            unit.Owner!.RemoveUnit(unit);
+            unit.Owner?.RemoveUnit(unit);
 
             // Remove unit from UI
             if (_unitImages[unit.X, unit.Y] != null)
@@ -646,13 +682,15 @@ namespace WorldWarX.Views
 
         private void CheckVictoryCondition()
         {
+            if (_humanPlayer == null || _aiPlayer == null || _gameMap == null) return;
+
             // Check if either player has lost all units
-            if (_humanPlayer!.Units.Count == 0)
+            if (_humanPlayer.Units.Count == 0)
             {
                 MessageBox.Show("Game Over! You have been defeated!", "Defeat", MessageBoxButton.OK, MessageBoxImage.Information);
                 BackToMainMenuRequested?.Invoke(this, EventArgs.Empty);
             }
-            else if (_aiPlayer!.Units.Count == 0)
+            else if (_aiPlayer.Units.Count == 0)
             {
                 MessageBox.Show("Victory! You have defeated the enemy!", "Victory", MessageBoxButton.OK, MessageBoxImage.Information);
                 BackToMainMenuRequested?.Invoke(this, EventArgs.Empty);
@@ -689,6 +727,14 @@ namespace WorldWarX.Views
 
         private void UpdateUnitInfo(Unit? unit)
         {
+            if (_gameMap == null)
+            {
+                SelectedUnitPanel.Visibility = Visibility.Collapsed;
+                NoSelectionText.Visibility = Visibility.Visible;
+                VisionInfoText.Visibility = Visibility.Collapsed;
+                return;
+            }
+
             if (unit == null)
             {
                 SelectedUnitPanel.Visibility = Visibility.Collapsed;
@@ -713,7 +759,8 @@ namespace WorldWarX.Views
             UnitFuelText.Text = unit.GetFuelStatusText();
 
             // Add vision range info
-            TerrainType terrain = _gameMap.Tiles[unit.X, unit.Y].TerrainType;
+            Tile? tileAtUnit = (_gameMap != null) ? _gameMap.Tiles[unit.X, unit.Y] : null;
+            TerrainType terrain = tileAtUnit != null ? tileAtUnit.TerrainType : TerrainType.Plain;
             int terrainBonus = GetTerrainVisionModifier(terrain, unit.MovementType);
             int effectiveVision = Math.Max(1, unit.VisionRange + terrainBonus);
 
@@ -753,7 +800,8 @@ namespace WorldWarX.Views
             // Update button states
             BtnAttack.IsEnabled = !unit.HasAttacked && unit.AttackPower > 0;
             BtnCapture.IsEnabled = !unit.IsCapturing && unit.UnitType == UnitType.Infantry &&
-                                  _selectedTile!.Capturable &&
+                                  _selectedTile != null &&
+                                  _selectedTile.Capturable &&
                                   (_selectedTile.Owner == null || _selectedTile.Owner != unit.Owner);
             BtnWait.IsEnabled = true;
 
@@ -789,14 +837,19 @@ namespace WorldWarX.Views
 
         private void HighlightTile(int x, int y, Color color)
         {
-            if (_tileRects[x, y] != null)
+            if (_tileRects != null && x >= 0 && y >= 0 && x < _tileRects.GetLength(0) && y < _tileRects.GetLength(1))
             {
-                _tileRects[x, y].Fill = new SolidColorBrush(color);
+                if (_tileRects[x, y] != null)
+                {
+                    _tileRects[x, y].Fill = new SolidColorBrush(color);
+                }
             }
         }
 
         private void ClearHighlights()
         {
+            if (_gameMap == null || _tileRects == null) return;
+
             for (int x = 0; x < _gameMap.Width; x++)
             {
                 for (int y = 0; y < _gameMap.Height; y++)
@@ -854,6 +907,7 @@ namespace WorldWarX.Views
             {
                 // Only highlight tiles with enemy units that are visible
                 if (tile.OccupyingUnit != null &&
+                    _selectedUnit.Owner != null &&
                     tile.OccupyingUnit.Owner != _selectedUnit.Owner &&
                     (!_fogOfWarEnabled || IsTileVisible(tile.X, tile.Y)))
                 {
@@ -867,21 +921,21 @@ namespace WorldWarX.Views
 
         private void BtnCapture_Click(object sender, RoutedEventArgs e)
         {
-            if (_selectedUnit == null || _selectedUnit.UnitType != UnitType.Infantry)
+            if (_selectedUnit == null || _selectedUnit.UnitType != UnitType.Infantry || _selectedTile == null)
                 return;
 
             // Start capturing
             _selectedUnit.IsCapturing = true;
 
             // Attempt to capture
-            bool captured = _selectedTile!.AttemptCapture(_selectedUnit);
+            bool captured = _selectedTile.AttemptCapture(_selectedUnit);
 
             if (captured)
             {
                 MessageBox.Show($"{_selectedTile.TerrainType} captured!");
 
                 // Add to player's properties
-                _selectedUnit.Owner!.ClaimProperty(_selectedTile);
+                _selectedUnit.Owner?.ClaimProperty(_selectedTile);
 
                 // If previous owner exists, remove from their properties
                 if (_selectedTile.Owner != null && _selectedTile.Owner != _selectedUnit.Owner)
@@ -896,7 +950,7 @@ namespace WorldWarX.Views
                 }
 
                 // Add power charge for capturing
-                _selectedUnit.Owner.AddPowerCharge(10);
+                _selectedUnit.Owner?.AddPowerCharge(10);
             }
             else
             {
@@ -954,6 +1008,8 @@ namespace WorldWarX.Views
 
         private void BtnEndTurn_Click(object? sender, RoutedEventArgs? e)
         {
+            if (_humanPlayer == null || _aiPlayer == null || _currentPlayer == null) return;
+
             // End current player's turn
             if (_currentPlayer == _humanPlayer)
             {
@@ -995,6 +1051,8 @@ namespace WorldWarX.Views
 
         private void StartNewTurn()
         {
+            if (_currentPlayer == null) return;
+
             // Reset all units
             _currentPlayer.StartNewTurn();
 
@@ -1013,8 +1071,10 @@ namespace WorldWarX.Views
 
         private void ExecuteAITurn()
         {
+            if (_aiPlayer == null) return;
+
             // Simple AI for demonstration purposes
-            foreach (Unit unit in _aiPlayer!.Units)
+            foreach (Unit unit in _aiPlayer.Units)
             {
                 // Reset unit for new turn
                 unit.ResetForNewTurn();
@@ -1038,7 +1098,9 @@ namespace WorldWarX.Views
 
         private void BtnUsePower_Click(object sender, RoutedEventArgs e)
         {
-            if (_currentPlayer != _humanPlayer || _humanPlayer!.PowerMeter < 100 || _humanPlayer!.IsPowerActive)
+            if (_playerCountry == null || _humanPlayer == null || _currentPlayer == null) return;
+
+            if (_currentPlayer != _humanPlayer || _humanPlayer.PowerMeter < 100 || _humanPlayer.IsPowerActive)
                 return;
 
             // Activate power
@@ -1046,7 +1108,7 @@ namespace WorldWarX.Views
 
             if (activated)
             {
-                MessageBox.Show($"Power '{_playerCountry!.PowerName}' activated!\n{_playerCountry.PowerDescription}");
+                MessageBox.Show($"Power '{_playerCountry.PowerName}' activated!\n{_playerCountry.PowerDescription}");
 
                 // Apply power effects
                 ApplyCountryPowerEffects();
@@ -1058,12 +1120,14 @@ namespace WorldWarX.Views
 
         private void ApplyCountryPowerEffects()
         {
+            if (_playerCountry == null || _humanPlayer == null) return;
+
             // Apply power effects based on country
             // These would implement the specific bonuses each country provides
-            switch (_playerCountry!.Name)
+            switch (_playerCountry.Name)
             {
                 case "Redonia": // Ground unit attack power bonus
-                    foreach (Unit unit in _humanPlayer!.Units)
+                    foreach (Unit unit in _humanPlayer.Units)
                     {
                         if (unit.UnitType == UnitType.Tank || unit.UnitType == UnitType.Artillery ||
                             unit.UnitType == UnitType.HeavyTank || unit.UnitType == UnitType.RocketLauncher)
@@ -1110,9 +1174,11 @@ namespace WorldWarX.Views
 
         private void BtnBuild_Click(object sender, RoutedEventArgs e)
         {
+            if (_humanPlayer == null) return;
+
             // Check if there's a factory available
             List<Tile> factories = new List<Tile>();
-            foreach (Tile tile in _humanPlayer!.Properties)
+            foreach (Tile tile in _humanPlayer.Properties)
             {
                 if (tile.TerrainType == TerrainType.Factory && tile.OccupyingUnit == null)
                 {
@@ -1303,7 +1369,7 @@ namespace WorldWarX.Views
 
             // Load the unit
             bool success = transportUnit.LoadUnit(unitToLoad);
-            if (success)
+            if (success && _gameMap != null)
             {
                 // Remove the loaded unit from the map
                 _gameMap.Tiles[unitToLoad.X, unitToLoad.Y].OccupyingUnit = null;
@@ -1333,7 +1399,7 @@ namespace WorldWarX.Views
             }
 
             // Check if the location is valid for unloading
-            if (!transportUnit.CanUnloadAt(x, y, _gameMap))
+            if (_gameMap == null || !transportUnit.CanUnloadAt(x, y, _gameMap))
             {
                 MessageBox.Show("Cannot unload at this location.");
                 return;
@@ -1341,7 +1407,7 @@ namespace WorldWarX.Views
 
             // Unload the unit
             Unit? unloadedUnit = transportUnit.UnloadUnit(unitIndex, x, y);
-            if (unloadedUnit != null)
+            if (unloadedUnit != null && _gameMap != null)
             {
                 // Place the unloaded unit on the map
                 _gameMap.Tiles[x, y].OccupyingUnit = unloadedUnit;
@@ -1375,6 +1441,8 @@ namespace WorldWarX.Views
         // Method to handle resupplying a unit's fuel
         private void ResupplyUnit(Unit unit)
         {
+            if (_gameMap == null) return;
+
             // Check if the unit is on a supply structure (HQ, Airport, Seaport, etc.)
             Tile tile = _gameMap.Tiles[unit.X, unit.Y];
 
@@ -1470,7 +1538,7 @@ namespace WorldWarX.Views
                     int nx = _selectedUnit.X + dx;
                     int ny = _selectedUnit.Y + dy;
 
-                    if (_selectedUnit.CanUnloadAt(nx, ny, _gameMap))
+                    if (_gameMap != null && _selectedUnit.CanUnloadAt(nx, ny, _gameMap))
                     {
                         unloadPositions.Add(new System.Windows.Point(nx, ny));
                     }
@@ -1507,6 +1575,8 @@ namespace WorldWarX.Views
                 return loadableUnits;
 
             // Check adjacent tiles for units that can be loaded
+            if (_gameMap == null) return loadableUnits;
+
             for (int dx = -1; dx <= 1; dx++)
             {
                 for (int dy = -1; dy <= 1; dy++)
@@ -1545,6 +1615,7 @@ namespace WorldWarX.Views
         // Update visibility for all players
         private void UpdateVisibility()
         {
+            if (_gameMap == null) return;
             if (!_fogOfWarEnabled) return;
 
             // Reset visibility for all tiles
@@ -1583,6 +1654,8 @@ namespace WorldWarX.Views
         // Update visibility from a unit
         private void UpdateVisibilityFromUnit(Unit unit, Player player)
         {
+            if (_gameMap == null) return;
+
             // Calculate the unit's effective vision range with terrain modifiers
             TerrainType terrainType = _gameMap.Tiles[unit.X, unit.Y].TerrainType;
             int terrainModifier = GetTerrainVisionModifier(terrainType, unit.MovementType);
@@ -1606,6 +1679,8 @@ namespace WorldWarX.Views
         // Update visibility from a property
         private void UpdateVisibilityFromProperty(Tile property, Player player)
         {
+            if (_gameMap == null) return;
+
             // Different properties provide different vision ranges
             int visionRange;
             switch (property.TerrainType)
@@ -1732,6 +1807,8 @@ namespace WorldWarX.Views
         // Update the fog of war overlay on the UI
         private void UpdateFogOfWar()
         {
+            if (_gameMap == null) return;
+
             if (!_fogOfWarEnabled)
             {
                 // If fog of war is disabled, make all tiles visible
@@ -1755,6 +1832,8 @@ namespace WorldWarX.Views
             }
 
             // Update fog of war display based on current player's visibility
+            if (_currentPlayer == null) return;
+
             for (int x = 0; x < _gameMap.Width; x++)
             {
                 for (int y = 0; y < _gameMap.Height; y++)
@@ -1782,7 +1861,7 @@ namespace WorldWarX.Views
                     }
 
                     // Handle unit visibility
-                    if (_unitImages[x, y] != null)
+                    if (_unitImages[x, y] != null && _gameMap != null)
                     {
                         Unit? unit = _gameMap.Tiles[x, y].OccupyingUnit;
 
@@ -1808,6 +1887,8 @@ namespace WorldWarX.Views
         // Check if a tile is currently visible to the current player
         private bool IsTileVisible(int x, int y)
         {
+            if (_gameMap == null) return false;
+            if (_currentPlayer == null) return false;
             if (!_fogOfWarEnabled)
                 return true;
 
@@ -1820,6 +1901,8 @@ namespace WorldWarX.Views
         // Check if a tile is hidden in fog (completely unseen)
         private bool IsTileHiddenInFog(int x, int y)
         {
+            if (_gameMap == null) return true;
+            if (_currentPlayer == null) return true;
             if (!_fogOfWarEnabled)
                 return false;
 
@@ -1832,6 +1915,8 @@ namespace WorldWarX.Views
         // Check if a tile is at least partially revealed (either visible or previously seen)
         private bool IsTileRevealed(int x, int y)
         {
+            if (_gameMap == null) return false;
+            if (_currentPlayer == null) return false;
             if (!_fogOfWarEnabled)
                 return true;
 

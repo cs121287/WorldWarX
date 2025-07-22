@@ -18,6 +18,16 @@ namespace WorldWarX
         public MainWindow()
         {
             InitializeComponent();
+
+
+            this.WindowStyle = WindowStyle.None;
+            this.ResizeMode = ResizeMode.NoResize;
+            this.WindowState = WindowState.Maximized;
+            this.Left = 0;
+            this.Top = 0;
+            this.Width = SystemParameters.PrimaryScreenWidth;
+            this.Height = SystemParameters.PrimaryScreenHeight;
+
             InitializeScreens();
 
             // Start with main menu

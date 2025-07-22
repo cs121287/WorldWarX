@@ -1,11 +1,13 @@
 <UserControl x:Class="WorldWarX.Views.QuickBattleControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:WorldWarX.Views"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              d:DesignHeight="900" d:DesignWidth="1200">
-    <Grid>
+
+    <Grid Background="#1A1A2E" Margin="40,32,40,32">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -13,286 +15,352 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Grid.Row="0" 
-                Background="#0F0F1A" 
-                Padding="15">
-            <TextBlock Text="QUICK BATTLE" 
-                       FontSize="36" 
-                       FontWeight="Bold" 
-                       Foreground="#61DAFB" 
-                       HorizontalAlignment="Center"/>
-        </Border>
+        <TextBlock Grid.Row="0"
+                   Text="QUICK BATTLE"
+                   FontSize="36"
+                   FontWeight="Bold"
+                   Foreground="#61DAFB"
+                   HorizontalAlignment="Center"
+                   Margin="0,20,0,18"/>
 
-        <!-- Main Content Area -->
+        <!-- Main Step Content -->
         <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="1*"/>
-            </Grid.ColumnDefinitions>
-
-            <!-- Left Panel: Map Selection -->
-            <Border Grid.Column="0" 
-                    Background="#0F0F1A" 
-                    Margin="15" 
-                    CornerRadius="5"
-                    BorderBrush="#61DAFB"
-                    BorderThickness="1">
-                <DockPanel>
-                    <TextBlock Text="SELECT MAP" 
-                               DockPanel.Dock="Top" 
-                               Foreground="#F73859" 
-                               FontSize="24" 
-                               FontWeight="Bold" 
-                               Margin="10"
-                               HorizontalAlignment="Center"/>
-
-                    <Image x:Name="MapPreviewImage"
-                           DockPanel.Dock="Top"
-                           Height="150"
-                           Margin="20,0,20,10"
-                           Stretch="Uniform"/>
-
-                    <TextBlock x:Name="MapNameText"
-                               DockPanel.Dock="Top"
-                               Text="Test Map"
-                               Foreground="White"
-                               FontSize="20"
-                               FontWeight="Bold"
-                               HorizontalAlignment="Center"
-                               Margin="0,0,0,5"/>
-
-                    <TextBlock x:Name="MapDescriptionText"
-                               DockPanel.Dock="Top"
-                               Text="A small balanced map for testing"
-                               Foreground="#CCCCCC"
-                               FontSize="14"
-                               TextWrapping="Wrap"
-                               HorizontalAlignment="Center"
-                               Margin="20,0,20,15"/>
-
-                    <ListView x:Name="MapListView" 
-                              Background="Transparent" 
-                              BorderThickness="0" 
-                              Margin="10">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Border Background="#2D2D3A" 
-                                        Margin="2" 
-                                        Padding="10" 
-                                        CornerRadius="5" 
-                                        Width="350">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Border Width="50" 
-                                                Height="50" 
-                                                Grid.Column="0" 
-                                                Margin="0,0,10,0">
-                                            <Image Source="{Binding PreviewImagePath}" 
-                                                   Stretch="UniformToFill"/>
-                                        </Border>
-                                        <StackPanel Grid.Column="1">
-                                            <TextBlock Text="{Binding Name}" 
-                                                       Foreground="White" 
-                                                       FontSize="16" 
-                                                       FontWeight="Bold"/>
-                                            <TextBlock Text="{Binding Description}" 
-                                                       Foreground="#AAAAAA" 
-                                                       FontSize="12" 
-                                                       TextWrapping="Wrap"/>
-                                            <TextBlock Text="{Binding Width, StringFormat={}Size: {0}x}" 
-                                                       Foreground="#61DAFB" 
-                                                       FontSize="11"/>
-                                        </StackPanel>
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
-                </DockPanel>
-            </Border>
-
-            <!-- Right Panel: Country Selection & Battle Options -->
-            <Border Grid.Column="1" 
-                    Background="#0F0F1A" 
-                    Margin="15" 
-                    CornerRadius="5"
-                    BorderBrush="#61DAFB"
-                    BorderThickness="1">
-                <DockPanel>
-                    <TextBlock Text="BATTLE OPTIONS" 
-                               DockPanel.Dock="Top" 
-                               Foreground="#F73859" 
-                               FontSize="24" 
-                               FontWeight="Bold" 
-                               Margin="10"
-                               HorizontalAlignment="Center"/>
-
-                    <Grid DockPanel.Dock="Top" Margin="15,0,15,15">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Player Country -->
-                        <StackPanel Grid.Column="0" Margin="0,0,5,0">
-                            <TextBlock Text="YOUR COUNTRY" 
-                                       Foreground="#61DAFB" 
-                                       FontSize="16" 
-                                       FontWeight="Bold" 
-                                       Margin="0,0,0,5"/>
-
-                            <ComboBox x:Name="PlayerCountryComboBox"
-                                      Margin="0,0,0,15">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Border Width="20" 
-                                                    Height="20" 
-                                                    BorderThickness="1" 
-                                                    BorderBrush="White" 
-                                                    Margin="0,0,5,0">
-                                                <Border.Background>
-                                                    <SolidColorBrush Color="{Binding PrimaryColor}"/>
-                                                </Border.Background>
-                                            </Border>
-                                            <TextBlock Text="{Binding Name}"/>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                        </StackPanel>
-
-                        <!-- Opponent Country -->
-                        <StackPanel Grid.Column="1" Margin="5,0,0,0">
-                            <TextBlock Text="OPPONENT" 
-                                       Foreground="#61DAFB" 
-                                       FontSize="16" 
-                                       FontWeight="Bold" 
-                                       Margin="0,0,0,5"/>
-
-                            <ComboBox x:Name="OpponentCountryComboBox"
-                                      Margin="0,0,0,15">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Border Width="20" 
-                                                    Height="20" 
-                                                    BorderThickness="1" 
-                                                    BorderBrush="White" 
-                                                    Margin="0,0,5,0">
-                                                <Border.Background>
-                                                    <SolidColorBrush Color="{Binding PrimaryColor}"/>
-                                                </Border.Background>
-                                            </Border>
-                                            <TextBlock Text="{Binding Name}"/>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                        </StackPanel>
-                    </Grid>
-
-                    <!-- Additional Options -->
-                    <StackPanel DockPanel.Dock="Top" Margin="15,0">
-                        <TextBlock Text="DIFFICULTY" 
-                                   Foreground="#61DAFB" 
-                                   FontSize="16" 
-                                   FontWeight="Bold" 
-                                   Margin="0,0,0,5"/>
-
-                        <ComboBox x:Name="DifficultyComboBox" 
-                                  Margin="0,0,0,15">
-                            <ComboBoxItem Content="Easy"/>
-                            <ComboBoxItem Content="Medium" IsSelected="True"/>
-                            <ComboBoxItem Content="Hard"/>
-                            <ComboBoxItem Content="Expert"/>
-                        </ComboBox>
-
-                        <!-- Map Season -->
-                        <TextBlock Text="MAP SEASON" 
-                                   Foreground="#61DAFB" 
-                                   FontSize="16" 
-                                   FontWeight="Bold" 
-                                   Margin="0,0,0,5"/>
-
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
-                            <RadioButton x:Name="SummerRadioButton" 
-                                         Content="Summer" 
-                                         Foreground="White" 
-                                         Margin="0,0,15,0" 
-                                         IsChecked="True"/>
-                            <RadioButton x:Name="WinterRadioButton" 
-                                         Content="Winter" 
-                                         Foreground="White"/>
-                        </StackPanel>
-
-                        <!-- Weather Effects -->
-                        <TextBlock Text="WEATHER EFFECTS" 
-                                   Foreground="#61DAFB" 
-                                   FontSize="16" 
-                                   FontWeight="Bold" 
-                                   Margin="0,0,0,5"/>
-
-                        <CheckBox x:Name="WeatherEffectsCheckBox" 
-                                  Content="Enable Weather Effects" 
-                                  Foreground="White" 
-                                  IsChecked="True" 
-                                  Margin="0,0,0,5"/>
-
-                        <TextBlock Text="Weather effects impact movement, combat accuracy, and visibility."
-                                   Foreground="#AAAAAA"
-                                   FontSize="12"
-                                   TextWrapping="Wrap"
-                                   Margin="0,0,0,15"/>
-
-                        <!-- Starting Funds -->
-                        <TextBlock Text="STARTING FUNDS" 
-                                   Foreground="#61DAFB" 
-                                   FontSize="16" 
-                                   FontWeight="Bold" 
-                                   Margin="0,0,0,5"/>
-
-                        <ComboBox x:Name="FundsComboBox" 
-                                  Margin="0,0,0,15">
-                            <ComboBoxItem Content="Standard (5000)"/>
-                            <ComboBoxItem Content="Low (3000)"/>
-                            <ComboBoxItem Content="High (10000)" IsSelected="True"/>
-                        </ComboBox>
+            <!-- Country Select Step -->
+            <Grid x:Name="CountryStepPanel" Visibility="Visible">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.2*"/>
+                    <ColumnDefinition Width="1.8*"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0"
+                        BorderBrush="#61DAFB"
+                        BorderThickness="2"
+                        CornerRadius="12"
+                        Background="#181830"
+                        Margin="24">
+                    <StackPanel Margin="32,24,32,24">
+                        <TextBlock Text="STEP 1: SELECT YOUR COUNTRY"
+                                   FontSize="22"
+                                   FontWeight="Bold"
+                                   Foreground="#F73859"
+                                   Margin="0,0,0,28"/>
+                        <local:CountrySelectionControl x:Name="CountrySelectionPanel"/>
                     </StackPanel>
+                </Border>
+                <Border Grid.Column="1"
+                        BorderBrush="#61DAFB"
+                        BorderThickness="2"
+                        CornerRadius="12"
+                        Background="#181830"
+                        Margin="24">
+                    <StackPanel Margin="36,24,36,24">
+                        <TextBlock Text="COUNTRY DETAILS"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Foreground="#F73859"
+                                   Margin="0,0,0,18"/>
+                        <TextBlock x:Name="CountryDetailsText"
+                                   Text="Select your country to see its details, strengths, and bonuses."
+                                   FontSize="16"
+                                   Foreground="White"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,10"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
 
-                    <!-- Battle button -->
-                    <Button x:Name="BtnStartBattle" 
-                            Content="START BATTLE" 
-                            DockPanel.Dock="Bottom"
-                            Height="50"
-                            Margin="15"
-                            Background="#F73859"
-                            Foreground="White"
-                            FontSize="20"
-                            FontWeight="Bold"
-                            Click="BtnStartBattle_Click"/>
-                </DockPanel>
-            </Border>
+            <!-- Map Select Step -->
+            <Grid x:Name="MapStepPanel" Visibility="Collapsed">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.2*"/>
+                    <ColumnDefinition Width="1.8*"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0"
+                        BorderBrush="#61DAFB"
+                        BorderThickness="2"
+                        CornerRadius="12"
+                        Background="#181830"
+                        Margin="24">
+                    <StackPanel Margin="32,24,32,24">
+                        <TextBlock Text="STEP 2: SELECT MAP"
+                                   FontSize="22"
+                                   FontWeight="Bold"
+                                   Foreground="#F73859"
+                                   Margin="0,0,0,28"/>
+                        <TextBlock x:Name="MapNameText"
+                                   Text="Test Map"
+                                   Foreground="White"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Margin="0,0,0,5"/>
+                        <TextBlock x:Name="MapDescriptionText"
+                                   Text="A small balanced map for testing"
+                                   Foreground="#CCCCCC"
+                                   FontSize="14"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,10"/>
+                        <Image x:Name="MapPreviewImage"
+                               Height="120"
+                               Width="180"
+                               Stretch="Uniform"
+                               Margin="0,0,0,18"/>
+                        <ListView x:Name="MapListView"
+                                  Height="260"
+                                  Background="Transparent"
+                                  BorderThickness="0"
+                                  Margin="0,0,0,0"
+                                  SelectionChanged="MapListView_SelectionChanged">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="#2D2D3A"
+                                            Margin="4"
+                                            Padding="8"
+                                            CornerRadius="5"
+                                            Width="330">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Name}"
+                                                       Foreground="White"
+                                                       FontSize="16"
+                                                       FontWeight="Bold"
+                                                       Width="110"/>
+                                            <TextBlock Text="{Binding Description}"
+                                                       Foreground="#AAAAAA"
+                                                       FontSize="13"
+                                                       TextWrapping="Wrap"
+                                                       Width="140"
+                                                       Margin="12,0,0,0"/>
+                                            <TextBlock Text="{Binding Width, StringFormat={}Size: {0}x}"
+                                                       Foreground="#61DAFB"
+                                                       FontSize="12"
+                                                       Margin="12,0,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="1"
+                        BorderBrush="#61DAFB"
+                        BorderThickness="2"
+                        CornerRadius="12"
+                        Background="#181830"
+                        Margin="24">
+                    <StackPanel Margin="36,24,36,24">
+                        <TextBlock Text="MAP DETAILS"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Foreground="#F73859"
+                                   Margin="0,0,0,18"/>
+                        <TextBlock Text="Choose a map to play on. Different maps offer unique terrain, choke points, and strategic challenges."
+                                   FontSize="16"
+                                   Foreground="White"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,10"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Battle Settings Step -->
+            <Grid x:Name="SettingsStepPanel" Visibility="Collapsed">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.2*"/>
+                    <ColumnDefinition Width="1.8*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="24,0,0,0">
+                    <!-- Difficulty Card -->
+                    <Border BorderBrush="#61DAFB" BorderThickness="2" CornerRadius="12" Background="#0F0F1A" Margin="0,0,0,16" Padding="18">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.2*"/>
+                                <ColumnDefinition Width="2*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="DIFFICULTY" Foreground="#61DAFB" FontWeight="Bold" FontSize="18"/>
+                                <ComboBox x:Name="DifficultyComboBox" Margin="0,10,0,0" SelectionChanged="SettingsCombo_SelectionChanged">
+                                    <ComboBoxItem Content="Easy"/>
+                                    <ComboBoxItem Content="Medium" IsSelected="True"/>
+                                    <ComboBoxItem Content="Hard"/>
+                                    <ComboBoxItem Content="Expert"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1"
+                                       Text="Controls the AI's intelligence, aggressiveness, and unit strength. Higher difficulty means smarter enemies and tougher battles."
+                                       FontSize="15"
+                                       Foreground="White"
+                                       Margin="22,0,0,0"
+                                       TextWrapping="Wrap"/>
+                        </Grid>
+                    </Border>
+                    <!-- Map Season Card -->
+                    <Border BorderBrush="#61DAFB" BorderThickness="2" CornerRadius="12" Background="#0F0F1A" Margin="0,0,0,16" Padding="18">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.2*"/>
+                                <ColumnDefinition Width="2*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="MAP SEASON" Foreground="#61DAFB" FontWeight="Bold" FontSize="18"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                    <RadioButton x:Name="SummerRadioButton" Content="Summer" IsChecked="True" Foreground="White" Margin="0,0,20,0" Checked="SettingsCombo_SelectionChanged"/>
+                                    <RadioButton x:Name="WinterRadioButton" Content="Winter" Foreground="White" Checked="SettingsCombo_SelectionChanged"/>
+                                </StackPanel>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1"
+                                       Text="Affects map visuals and weather probabilities. Summer is mostly clear, while winter brings more snow and blizzards that can slow units and reduce visibility."
+                                       FontSize="15"
+                                       Foreground="White"
+                                       Margin="22,0,0,0"
+                                       TextWrapping="Wrap"/>
+                        </Grid>
+                    </Border>
+                    <!-- Weather Effects Card -->
+                    <Border BorderBrush="#61DAFB" BorderThickness="2" CornerRadius="12" Background="#0F0F1A" Margin="0,0,0,16" Padding="18">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.2*"/>
+                                <ColumnDefinition Width="2*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="WEATHER EFFECTS" Foreground="#61DAFB" FontWeight="Bold" FontSize="18"/>
+                                <CheckBox x:Name="WeatherEffectsCheckBox" Content="Enable Weather Effects" Foreground="White" IsChecked="True" Margin="0,10,0,0" Checked="SettingsCombo_SelectionChanged"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1"
+                                       Text="Enabling weather effects means rain, snow, and fog can occur, affecting movement, combat accuracy, and line of sight. Disabling keeps the weather always clear for both sides."
+                                       FontSize="15"
+                                       Foreground="White"
+                                       Margin="22,0,0,0"
+                                       TextWrapping="Wrap"/>
+                        </Grid>
+                    </Border>
+                    <!-- Fog of War Card -->
+                    <Border BorderBrush="#61DAFB" BorderThickness="2" CornerRadius="12" Background="#0F0F1A" Margin="0,0,0,16" Padding="18">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.2*"/>
+                                <ColumnDefinition Width="2*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="FOG OF WAR" Foreground="#61DAFB" FontWeight="Bold" FontSize="18"/>
+                                <CheckBox x:Name="FogOfWarCheckBox" Content="Enable Fog of War" Foreground="White" IsChecked="True" Margin="0,10,0,0" Checked="SettingsCombo_SelectionChanged"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1"
+                                       Text="Fog of War hides enemy units and terrain unless you have vision in that area, adding strategic depth and uncertainty to battles."
+                                       FontSize="15"
+                                       Foreground="White"
+                                       Margin="22,0,0,0"
+                                       TextWrapping="Wrap"/>
+                        </Grid>
+                    </Border>
+                    <!-- Starting Funds Card -->
+                    <Border BorderBrush="#61DAFB" BorderThickness="2" CornerRadius="12" Background="#0F0F1A" Margin="0,0,0,0" Padding="18">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.2*"/>
+                                <ColumnDefinition Width="2*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="STARTING FUNDS" Foreground="#61DAFB" FontWeight="Bold" FontSize="18"/>
+                                <ComboBox x:Name="FundsComboBox" Margin="0,10,0,0" Width="220" SelectionChanged="SettingsCombo_SelectionChanged">
+                                    <ComboBoxItem Content="Standard (5000)"/>
+                                    <ComboBoxItem Content="Low (3000)"/>
+                                    <ComboBoxItem Content="High (10000)" IsSelected="True"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1"
+                                       Text="Determines how much currency you begin with for producing units and managing your army. More funds means a stronger initial force and more options early on."
+                                       FontSize="15"
+                                       Foreground="White"
+                                       Margin="22,0,0,0"
+                                       TextWrapping="Wrap"/>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+                <!-- Live Summary Panel -->
+                <Border Grid.Column="1"
+                        BorderBrush="#61DAFB"
+                        BorderThickness="2"
+                        CornerRadius="12"
+                        Background="#181830"
+                        Margin="24">
+                    <StackPanel Margin="36,24,36,24">
+                        <TextBlock Text="BATTLE SUMMARY"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Foreground="#F73859"
+                                   Margin="0,0,0,18"/>
+                        <StackPanel Margin="0,0,0,10">
+                            <TextBlock Text="Your Country:" Foreground="#61DAFB" FontWeight="Bold" FontSize="16"/>
+                            <TextBlock x:Name="SummaryPlayerCountryText" FontSize="15" Foreground="White" Margin="0,0,0,6"/>
+                            <TextBlock Text="Opponent Country:" Foreground="#61DAFB" FontWeight="Bold" FontSize="16"/>
+                            <TextBlock x:Name="SummaryOpponentCountryText" FontSize="15" Foreground="#F73859" Margin="0,0,0,6"/>
+                            <TextBlock Text="Map:" Foreground="#61DAFB" FontWeight="Bold" FontSize="16"/>
+                            <TextBlock x:Name="SummaryMapText" FontSize="15" Foreground="White" Margin="0,0,0,6"/>
+                            <TextBlock Text="Map Size:" Foreground="#61DAFB" FontWeight="Bold" FontSize="16"/>
+                            <TextBlock x:Name="SummaryMapSizeText" FontSize="15" Foreground="White" Margin="0,0,0,6"/>
+                        </StackPanel>
+                        <StackPanel Margin="0,10,0,0">
+                            <TextBlock Text="Difficulty:" Foreground="#61DAFB" FontWeight="Bold" FontSize="16"/>
+                            <TextBlock x:Name="SummaryDifficultyText" FontSize="15" Foreground="White" Margin="0,0,0,6"/>
+                            <TextBlock Text="Map Season:" Foreground="#61DAFB" FontWeight="Bold" FontSize="16"/>
+                            <TextBlock x:Name="SummarySeasonText" FontSize="15" Foreground="White" Margin="0,0,0,6"/>
+                            <TextBlock Text="Weather Effects:" Foreground="#61DAFB" FontWeight="Bold" FontSize="16"/>
+                            <TextBlock x:Name="SummaryWeatherEffectsText" FontSize="15" Foreground="White" Margin="0,0,0,6"/>
+                            <TextBlock Text="Fog of War:" Foreground="#61DAFB" FontWeight="Bold" FontSize="16"/>
+                            <TextBlock x:Name="SummaryFogOfWarText" FontSize="15" Foreground="White" Margin="0,0,0,6"/>
+                            <TextBlock Text="Starting Funds:" Foreground="#61DAFB" FontWeight="Bold" FontSize="16"/>
+                            <TextBlock x:Name="SummaryFundsText" FontSize="15" Foreground="White" Margin="0,0,0,6"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
         </Grid>
 
-        <!-- Bottom Panel: Navigation -->
-        <StackPanel Grid.Row="2" 
-                    Background="#0F0F1A" 
-                    Orientation="Horizontal" 
-                    HorizontalAlignment="Center"
-                    Margin="0,0,0,15">
-            <Button x:Name="BtnBack" 
-                    Content="BACK TO MAIN MENU" 
-                    Width="250"
-                    Height="40"
-                    Background="#4D4D65"
-                    Foreground="White"
-                    FontSize="16"
+        <!-- Bottom Navigation Buttons -->
+        <Grid Grid.Row="2" Margin="0,26,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+            <!-- Back Button (left) -->
+            <Button x:Name="BackButton"
+                    Content="Back"
+                    Width="180"
+                    Height="44"
+                    FontSize="18"
                     FontWeight="Bold"
-                    Click="BtnBack_Click"/>
-        </StackPanel>
+                    Background="#61DAFB"
+                    Foreground="#16162A"
+                    HorizontalAlignment="Left"
+                    Grid.Column="0"
+                    Margin="0,0,0,0"
+                    Click="BackButton_Click"/>
+            <!-- Main Menu Button (center) -->
+            <Button x:Name="MainMenuButton"
+                    Content="Main Menu"
+                    Width="180"
+                    Height="44"
+                    FontSize="18"
+                    FontWeight="Bold"
+                    Background="#F73859"
+                    Foreground="White"
+                    HorizontalAlignment="Center"
+                    Grid.Column="1"
+                    Margin="0,0,0,0"
+                    Click="MainMenuButton_Click"/>
+            <!-- Next/Start Battle Button (right) -->
+            <Button x:Name="NextOrStartButton"
+                    Content="Next"
+                    Width="180"
+                    Height="44"
+                    FontSize="18"
+                    FontWeight="Bold"
+                    Background="#61DAFB"
+                    Foreground="#16162A"
+                    HorizontalAlignment="Right"
+                    Grid.Column="2"
+                    Margin="0,0,0,0"
+                    Click="NextOrStartButton_Click"/>
+        </Grid>
     </Grid>
 </UserControl>

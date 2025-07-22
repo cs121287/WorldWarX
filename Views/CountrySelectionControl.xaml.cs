@@ -8,17 +8,17 @@ namespace WorldWarX.Views
 {
     public class CountrySelectedEventArgs(Country country) : EventArgs
     {
-        public Country? SelectedCountry { get; set; } = country;
+        public required Country? SelectedCountry { get; set; } = country;
     }
 
     public partial class CountrySelectionControl : UserControl
     {
         private List<Country>? _availableCountries;
         private Country? _selectedCountry;
-        
+
         // Events for navigation
         public event EventHandler? BackRequested;
-        public event EventHandler<CountrySelectedEventArgs> CountrySelected;
+        public event EventHandler<CountrySelectedEventArgs>? CountrySelected;
 
         public CountrySelectionControl()
         {
@@ -26,7 +26,18 @@ namespace WorldWarX.Views
             LoadCountries();
             PopulateCountryList();
         }
-        
+
+        /// <summary>
+        /// Allows an external parent (like QuickBattleControl) to set the available countries programmatically.
+        /// This will override the default LoadCountries list.
+        /// </summary>
+        /// <param name="countries"></param>
+        public void SetAvailableCountries(List<Country> countries)
+        {
+            _availableCountries = countries;
+            PopulateCountryList();
+        }
+
         private void LoadCountries()
         {
             // Create sample countries
@@ -98,12 +109,12 @@ namespace WorldWarX.Views
                 }
             };
         }
-        
+
         private void PopulateCountryList()
         {
             CountryListView.ItemsSource = _availableCountries;
         }
-        
+
         private void CountryListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (CountryListView.SelectedItem != null)
@@ -113,41 +124,44 @@ namespace WorldWarX.Views
                 BtnSelectCountry.IsEnabled = true;
             }
         }
-        
+
         private void UpdateCountryDetails(Country country)
         {
             CountryNameText.Text = country.Name;
             CountryDescriptionText.Text = country.Description;
             PowerNameText.Text = country.PowerName;
             PowerDescriptionText.Text = country.PowerDescription;
-            
+
             // Update bonuses list
             BonusesList.Items.Clear();
-            
+
             foreach (var bonus in country.UnitBonus)
             {
                 BonusesList.Items.Add($"{bonus.Key}: +{bonus.Value * 100}% Effectiveness");
             }
-            
+
             foreach (var bonus in country.TerrainBonus)
             {
                 BonusesList.Items.Add($"{bonus.Key}: +{bonus.Value * 100}% Defense");
             }
-            
+
             if (country.EconomyBonus > 0)
             {
                 BonusesList.Items.Add($"Economy: +{country.EconomyBonus * 100}% Income");
             }
         }
-        
+
         private void BtnSelectCountry_Click(object sender, RoutedEventArgs e)
         {
             if (_selectedCountry != null)
             {
-                CountrySelected?.Invoke(this, new CountrySelectedEventArgs(_selectedCountry));
+                CountrySelected?.Invoke(this, new CountrySelectedEventArgs(_selectedCountry)
+                {
+                    SelectedCountry = _selectedCountry
+                });
             }
         }
-        
+
         private void BtnBack_Click(object sender, RoutedEventArgs e)
         {
             BackRequested?.Invoke(this, EventArgs.Empty);

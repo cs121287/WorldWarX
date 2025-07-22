@@ -9,7 +9,7 @@ namespace WorldWarX.Models
         public TerrainType TerrainType { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
-        public Unit OccupyingUnit { get; set; }
+        public Unit? OccupyingUnit { get; set; }
 
         // Terrain properties
         public int DefenseBonus { get; set; }
@@ -18,13 +18,13 @@ namespace WorldWarX.Models
         public int IncomeValue { get; set; }
 
         // Owner (for buildings that can be owned)
-        public Player Owner { get; set; }
+        public Player? Owner { get; set; }
 
         // Capture progress (0-100)
         public int CaptureProgress { get; set; }
 
         // Visual representation
-        public ImageSource TileImage { get; set; }
+        public ImageSource? TileImage { get; set; }
 
         public Tile(TerrainType type, int x, int y)
         {

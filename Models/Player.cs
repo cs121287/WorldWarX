@@ -6,11 +6,11 @@ namespace WorldWarX.Models
     public class Player
     {
         public int PlayerId { get; set; }
-        public string Name { get; set; }
-        public Country Country { get; set; }
+        public string? Name { get; set; }
+        public Country? Country { get; set; }
         public int Funds { get; set; }
         public Color PlayerColor { get; set; }
-        public string ColorCode { get; set; }
+        public string? ColorCode { get; set; }
         public bool IsAI { get; set; }
 
         // List of units owned by this player
@@ -126,7 +126,7 @@ namespace WorldWarX.Models
         }
 
         // Try to buy a new unit
-        public bool TryBuyUnit(UnitType unitType, out Unit newUnit)
+        public bool TryBuyUnit(UnitType unitType, out Unit? newUnit)
         {
             newUnit = null;
 

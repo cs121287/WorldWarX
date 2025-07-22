@@ -9,7 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Views\" />
+    <Folder Include="Assets\Flags\" />
+    <Folder Include="Assets\Maps\" />
+    <Folder Include="Assets\Weather\" />
+    <Folder Include="Assets\Units\" />
   </ItemGroup>
 
 </Project>

@@ -5,6 +5,8 @@
         xmlns:views="clr-namespace:WorldWarX.Views"
         Title="World War X" Height="600" Width="900"
         WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        WindowStyle="None"
         ResizeMode="NoResize"
         Background="#1A1A2E">
     
