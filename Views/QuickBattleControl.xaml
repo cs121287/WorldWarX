@@ -25,86 +25,65 @@
 
         <!-- Main Step Content -->
         <Grid Grid.Row="1">
-            <!-- Country Select Step -->
+            <!-- Country Select Step (single column) -->
             <Grid x:Name="CountryStepPanel" Visibility="Visible">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1.2*"/>
-                    <ColumnDefinition Width="1.8*"/>
+                    <ColumnDefinition Width="1*"/>
                 </Grid.ColumnDefinitions>
                 <Border Grid.Column="0"
                         BorderBrush="#61DAFB"
-                        BorderThickness="2"
-                        CornerRadius="12"
+                        BorderThickness="0"
+                        CornerRadius="5"
                         Background="#181830"
                         Margin="24">
-                    <StackPanel Margin="32,24,32,24">
-                        <TextBlock Text="STEP 1: SELECT YOUR COUNTRY"
-                                   FontSize="22"
-                                   FontWeight="Bold"
-                                   Foreground="#F73859"
-                                   Margin="0,0,0,28"/>
-                        <local:CountrySelectionControl x:Name="CountrySelectionPanel"/>
-                    </StackPanel>
-                </Border>
-                <Border Grid.Column="1"
-                        BorderBrush="#61DAFB"
-                        BorderThickness="2"
-                        CornerRadius="12"
-                        Background="#181830"
-                        Margin="24">
-                    <StackPanel Margin="36,24,36,24">
-                        <TextBlock Text="COUNTRY DETAILS"
-                                   FontSize="20"
-                                   FontWeight="Bold"
-                                   Foreground="#F73859"
-                                   Margin="0,0,0,18"/>
+                    <StackPanel>
+                        <local:CountrySelectionControl x:Name="CountrySelectionPanel" Height="626"/>
                         <TextBlock x:Name="CountryDetailsText"
                                    Text="Select your country to see its details, strengths, and bonuses."
                                    FontSize="16"
                                    Foreground="White"
                                    TextWrapping="Wrap"
-                                   Margin="0,0,0,10"/>
+                                   Margin="0,24,0,10"/>
                     </StackPanel>
                 </Border>
             </Grid>
 
             <!-- Map Select Step -->
-            <Grid x:Name="MapStepPanel" Visibility="Collapsed">
+            <Grid x:Name="MapStepPanel" Visibility="Visible">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1.2*"/>
-                    <ColumnDefinition Width="1.8*"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
                 </Grid.ColumnDefinitions>
                 <Border Grid.Column="0"
                         BorderBrush="#61DAFB"
-                        BorderThickness="2"
-                        CornerRadius="12"
+                        BorderThickness="1"
+                        CornerRadius="5"
                         Background="#181830"
-                        Margin="24">
-                    <StackPanel Margin="32,24,32,24">
-                        <TextBlock Text="STEP 2: SELECT MAP"
+                        Margin="0,34,10,40" HorizontalAlignment="Right" Width="516">
+                    <StackPanel Height="640" VerticalAlignment="Top">
+                        <TextBlock Text="SELECT MAP"
                                    FontSize="22"
                                    FontWeight="Bold"
                                    Foreground="#F73859"
-                                   Margin="0,0,0,28"/>
+                                   Margin="10"
+                                   HorizontalAlignment="Center" Width="130"/>
                         <TextBlock x:Name="MapNameText"
                                    Text="Test Map"
                                    Foreground="White"
                                    FontSize="20"
                                    FontWeight="Bold"
-                                   Margin="0,0,0,5"/>
+                                   Margin="0,0,0,5"
+                                   HorizontalAlignment="Center"/>
                         <TextBlock x:Name="MapDescriptionText"
                                    Text="A small balanced map for testing"
                                    Foreground="#CCCCCC"
                                    FontSize="14"
                                    TextWrapping="Wrap"
-                                   Margin="0,0,0,10"/>
-                        <Image x:Name="MapPreviewImage"
-                               Height="120"
-                               Width="180"
-                               Stretch="Uniform"
-                               Margin="0,0,0,18"/>
+                                   Margin="0,0,0,10"
+                                   HorizontalAlignment="Center"/>
+
                         <ListView x:Name="MapListView"
-                                  Height="260"
+                                  Height="490"
                                   Background="Transparent"
                                   BorderThickness="0"
                                   Margin="0,0,0,0"
@@ -141,21 +120,22 @@
                 </Border>
                 <Border Grid.Column="1"
                         BorderBrush="#61DAFB"
-                        BorderThickness="2"
-                        CornerRadius="12"
+                        BorderThickness="1"
+                        CornerRadius="5"
                         Background="#181830"
-                        Margin="24">
-                    <StackPanel Margin="36,24,36,24">
-                        <TextBlock Text="MAP DETAILS"
+                        Margin="0,0,36,24" HorizontalAlignment="Right" Width="514" Height="622" VerticalAlignment="Bottom">
+                    <StackPanel Margin="0,0,0,-1">
+                        <TextBlock Text="MAP PREVIEW"
                                    FontSize="20"
                                    FontWeight="Bold"
-                                   Foreground="#F73859"
-                                   Margin="0,0,0,18"/>
-                        <TextBlock Text="Choose a map to play on. Different maps offer unique terrain, choke points, and strategic challenges."
-                                   FontSize="16"
-                                   Foreground="White"
-                                   TextWrapping="Wrap"
-                                   Margin="0,0,0,10"/>
+                                   Foreground="#61DAFB"
+                                   Margin="0,0,0,18"
+                                   HorizontalAlignment="Center"/>
+                        <Image x:Name="MapPreviewImage"
+                               Height="240"
+                               Width="360"
+                               Stretch="Uniform"
+                               />
                     </StackPanel>
                 </Border>
             </Grid>
@@ -163,8 +143,8 @@
             <!-- Battle Settings Step -->
             <Grid x:Name="SettingsStepPanel" Visibility="Collapsed">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1.2*"/>
                     <ColumnDefinition Width="1.8*"/>
+                    <ColumnDefinition Width="1.2*"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="24,0,0,0">
                     <!-- Difficulty Card -->
